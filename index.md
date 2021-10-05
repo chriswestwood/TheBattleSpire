@@ -1,37 +1,18 @@
-## Welcome to GitHub Pages
+![Title](/Title.jpg)
 
-You can use the [editor on GitHub](https://github.com/chriswestwood/TheBattleSpire/edit/gh-pages/index.md) to maintain and preview the content for your website in Markdown files.
+"The Battle Spire" is a turn-based dungeon crawler game, that incorporates a card structure for combat. 
 
-Whenever you commit to this repository, GitHub Pages will run [Jekyll](https://jekyllrb.com/) to rebuild the pages in your site, from the content in your Markdown files.
+Levels are generated as you explore each room, ending with bosses and treasures. Equipment decides your combat abilities, this takes in the form of a deck of cards where a hand of 3 will be drawn at the start of a turn, 1 movement, 1 combat, 1 special/random. Combat is deadly and requires tactical thinking of positioning and direction.
 
-### Markdown
+Each level is structured of square rooms, that consist of hexagon tiles. Rooms have an exit on each cardinal direction, hiding other rooms. Once a door is opened there is no going back, so choose wisely.
 
-Markdown is a lightweight and easy-to-use syntax for styling your writing. It includes conventions for
 
-```markdown
-Syntax highlighted code block
+## Features
 
-# Header 1
-## Header 2
-### Header 3
+### TODO
 
-- Bulleted
-- List
+## Reference
 
-1. Numbered
-2. List
 
-**Bold** and _Italic_ and `Code` text
 
-[Link](url) and ![Image](src)
-```
-
-For more details see [GitHub Flavored Markdown](https://guides.github.com/features/mastering-markdown/).
-
-### Jekyll Themes
-
-Your Pages site will use the layout and styles from the Jekyll theme you have selected in your [repository settings](https://github.com/chriswestwood/TheBattleSpire/settings/pages). The name of this theme is saved in the Jekyll `_config.yml` configuration file.
-
-### Support or Contact
-
-Having trouble with Pages? Check out our [documentation](https://docs.github.com/categories/github-pages-basics/) or [contact support](https://support.github.com/contact) and we’ll help you sort it out.
+<< [Return](https://chriswestwood.github.io/)
