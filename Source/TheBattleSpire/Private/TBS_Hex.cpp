@@ -23,6 +23,11 @@ ATBS_Hex::ATBS_Hex()
 		hexMeshComp = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("StaticMesh"));
 		hexMeshComp->AttachToComponent(hexCollisionComp, FAttachmentTransformRules::KeepRelativeTransform);
 	}
+	if (!occupantSceneComp)
+	{
+		occupantSceneComp = CreateDefaultSubobject<USceneComponent>(TEXT("OccupantSceneComponent"));
+		occupantSceneComp->AttachToComponent(hexMeshComp, FAttachmentTransformRules::KeepRelativeTransform);
+	}
 	if (!RootComponent)
 	{
 		RootComponent = CreateDefaultSubobject<USceneComponent>(TEXT("HexSceneComponent"));
@@ -54,7 +59,6 @@ void ATBS_Hex::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 	floatTimeline.TickTimeline(DeltaTime);
-
 }
 
 void ATBS_Hex::SetGridLocation(FIntPoint newGridLoc)

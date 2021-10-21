@@ -4,7 +4,6 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
-#include "TBS_Hex.h"
 #include "EnumRoom.h"
 #include "TBS_GridSystem.generated.h"
 
@@ -15,7 +14,6 @@ struct THEBATTLESPIRE_API FRoomStruct
 {
 	GENERATED_BODY()
 protected:
-	FIntPoint roomOffset; // offset of last room, to calculate if we are returning
 	FIntPoint worldOffset; // used to calculate where to position new room
 	FIntPoint roomSize; // size of the room x,y
 	int roomNumber;
@@ -25,15 +23,11 @@ protected:
 	TEnumAsByte<RoomStyle> roomSouthStyle; // South room style
 	TEnumAsByte<RoomStyle> roomWestStyle; // West room style
 	TEnumAsByte<RoomType> roomType; // Current room type
-	TArray<TArray<ATBS_Hex*>> hexArray; // array of Hex tiles that make up room
-
+	
 public:
-	FIntPoint GetOffset() { return roomOffset; }
 	FVector2D GetWorldOffset() { return worldOffset; }
 	FIntPoint GetRoomSize() { return roomSize; }
 	int GetRoomNumber() { return roomNumber; }
-	ATBS_Hex* GetHex(int x, int y) { return hexArray[x][y];}
-	TArray<TArray<ATBS_Hex*>> GetHexArray();
 	TEnumAsByte<RoomStyle> GetStyle() { return roomStyle; }
 	TEnumAsByte<RoomStyle> GetNorthStyle() { return roomNorthStyle; }
 	TEnumAsByte<RoomStyle> GetEastStyle() { return roomEastStyle; }
@@ -56,24 +50,20 @@ public:
 	}
 
 	void SetRoom(FIntPoint newSize,
-					FIntPoint newRoomOff,
 					FIntPoint newWorldOff,
 					int newRoomNumber,
 					TEnumAsByte<RoomStyle> newNorthStyle,
 					TEnumAsByte<RoomStyle> newEastStyle,
 					TEnumAsByte<RoomStyle> newSouthStyle,
-					TEnumAsByte<RoomStyle> newWestStyle,
-					TArray<TArray<ATBS_Hex*>> newArray)
+					TEnumAsByte<RoomStyle> newWestStyle)
 	{
 		roomSize = newSize;
-		roomOffset = newRoomOff;
 		worldOffset = newWorldOff;
 		roomNumber = newRoomNumber;
 		roomNorthStyle = newNorthStyle;
 		roomEastStyle = newEastStyle;
 		roomSouthStyle = newSouthStyle;
 		roomWestStyle = newWestStyle;
-		hexArray = newArray;
 	}
 
 	// set defaults for a room
@@ -95,12 +85,12 @@ public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
-	// Generate a Square grid of Hex tiles as a room 
-	// set in the direction and offset provided
-	UFUNCTION(blueprintcallable, Category = build)
-	void GenerateNewSquareRoom(FIntPoint size,
+	// Main function to generate a Room, calls GenerateNewSquareRoom to build grid
+	UFUNCTION(BlueprintCallable, Category = Build)
+	void GenerateRoom(FIntPoint size,
 						TEnumAsByte<RoomDirection> direction,
 						int doorOffset);
+	
 
 	void DestroyOldestRoom(int roomNum);
 
@@ -108,10 +98,26 @@ protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
-	// VARIABLES
-	TSubclassOf<ATBS_Hex> HexBlueprint;
-	TArray<FRoomStruct> Rooms;
+	// Generate a Square grid of Hex tiles as a room 
+	// set in the direction and offset provided
+	UFUNCTION()
+	void GenerateNewSquareRoom(FIntPoint size,
+								TEnumAsByte<RoomDirection> direction,
+								int doorOffset,
+								int roomNumber);
 
+	UFUNCTION()
+	void GenerateWallsAndDoors(int roomNumber);
+		
+		
+	// VARIABLES
+	UPROPERTY()
+	TSubclassOf<class ATBS_Hex> HexBlueprint;
+	UPROPERTY()
+	TSubclassOf<class ATBS_Wall> WallBlueprint;
+	UPROPERTY()
+	TArray<FRoomStruct> Rooms;
+	UPROPERTY()
 	FIntPoint LastWorldOffset;
 	int roomCount;
 

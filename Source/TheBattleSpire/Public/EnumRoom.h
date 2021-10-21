@@ -10,27 +10,38 @@
 UENUM()
 enum RoomStyle
 {
-	Grassland		UMETA(DisplayName = "Grass"),
-	Woodland		UMETA(DisplayName = "Wood"),
-	Stone           UMETA(DisplayName = "Stone"),
-	MetalRoom		UMETA(DisplayName = "Metal")
+	Grassland   UMETA(DisplayName = "Grass"),
+	Woodland    UMETA(DisplayName = "Wood"),
+	Stone       UMETA(DisplayName = "Stone"),
+	MetalRoom	UMETA(DisplayName = "Metal")
 };
 
 UENUM()
 enum RoomType
 {
-	Outside     UMETA(DisplayName = "Outside"),
-	Inside      UMETA(DisplayName = "Inside"),
-	Boss	    UMETA(DisplayName = "BossRoom")
+	Outside	UMETA(DisplayName = "Outside"),
+	Inside  UMETA(DisplayName = "Inside"),
+	Boss	UMETA(DisplayName = "BossRoom")
 };
 
 UENUM()
 enum RoomDirection
 {
-	North     UMETA(DisplayName = "N"),
-	East      UMETA(DisplayName = "E"),
-	South	  UMETA(DisplayName = "S"),
-	West	  UMETA(DisplayName = "W")
+	RNorth	UMETA(DisplayName = "N"),
+	REast   UMETA(DisplayName = "E"),
+	RSouth	UMETA(DisplayName = "S"),
+	RWest	UMETA(DisplayName = "W")
+};
+
+UENUM()
+enum TileDirection
+{
+	TNorthEast	UMETA(DisplayName = "NE"),
+	TNorthWest  UMETA(DisplayName = "NW"),
+	TWest		UMETA(DisplayName = "W"),
+	TSouthWest	UMETA(DisplayName = "SW"),
+	TSouthEast  UMETA(DisplayName = "SE"),
+	TEast		UMETA(DisplayName = "E")
 };
 /**
  * 

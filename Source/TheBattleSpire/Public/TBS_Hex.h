@@ -34,16 +34,23 @@ protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
+	//COMPONENTS
 	// Hex Mesh Component
 	UPROPERTY(VisibleDefaultsOnly, Category = Hex)
 	class UStaticMeshComponent* hexMeshComp;
 	// Hex Collision Component
 	UPROPERTY(VisibleDefaultsOnly, Category = Hex)
 	class USphereComponent* hexCollisionComp;
+	// Scene Component for occupant to stand
+	UPROPERTY(VisibleDefaultsOnly, Category = Hex)
+	class USceneComponent* occupantSceneComp;
 
 	// Grid Information
 	FIntPoint gridLocation;
 	int roomNumber;
+
+	//Occupant of hex
+	AActor* Occupant;
 
 	//spawn/despawn timeline info
 	UPROPERTY()
