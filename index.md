@@ -37,6 +37,6 @@ Each level is structured of square rooms, that consist of hexagon tiles. Rooms h
 
 ## Reference
 
--
+- [Quixel](https://quixel.com/megascans) - Models and Textures
 
 << [Return](https://chriswestwood.github.io/)
