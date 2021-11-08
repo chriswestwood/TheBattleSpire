@@ -2,6 +2,7 @@
 
 
 #include "TBS_Hex.h"
+#include "TBS_Object.h"
 #include "Components/SphereComponent.h"
 
 // Sets default values
@@ -50,7 +51,7 @@ void ATBS_Hex::BeginPlay()
 		floatTimeline.SetLooping(false);
 		//StartFloat();
 		FTimerHandle UnusedHandle;
-		GetWorldTimerManager().SetTimer(UnusedHandle,this, &ATBS_Hex::StartFloat, FMath::FRand()/2, false);
+		GetWorldTimerManager().SetTimer(UnusedHandle,this, &ATBS_Hex::Spawn, FMath::FRand()/2, false);
 	}
 }
 
@@ -81,7 +82,77 @@ const int ATBS_Hex::GetGridRoom()
 	return roomNumber;
 }
 
-void ATBS_Hex::StartFloat()
+const FVector ATBS_Hex::GetBaseLocation()
+{
+	return targetLocation;
+}
+
+void ATBS_Hex::SetRoomLevel(TEnumAsByte<RoomLevel> newL)
+{
+	currentRoomLevel = newL;
+}
+
+const TEnumAsByte<RoomLevel> ATBS_Hex::GetRoomLevel()
+{
+	return currentRoomLevel;
+}
+
+TArray<ATBS_Hex*> ATBS_Hex::GetNeigbourHex(TEnumAsByte<TileDirection> direction, int count)
+{
+	TArray<ATBS_Hex*> hexes;
+
+	// line trace based on direction
+	FHitResult Hit;
+	FVector endLoc = GetActorLocation();
+	// set the end location based on the direction
+	if (direction == TileDirection::TNorthWest) { endLoc.X += 130; endLoc.Y += 225; }
+	if (direction == TileDirection::TNorthEast) { endLoc.X -= 130; endLoc.Y += 225;	}
+	if (direction == TileDirection::TEast) endLoc.X -= 260;
+	if (direction == TileDirection::TSouthEast) { endLoc.X -= 130; endLoc.Y -= 225; }
+	if (direction == TileDirection::TSouthWest) { endLoc.X += 130; endLoc.Y -= 225; }
+	if (direction == TileDirection::TWest) endLoc.X += 260;
+
+	// add this to the collision params so it does not hit itself
+	FCollisionQueryParams CollisionParams;
+	CollisionParams.AddIgnoredActor(this);
+
+	// get line trace to the next hex
+	if (GetWorld()->LineTraceSingleByChannel(Hit, GetActorLocation(), endLoc, ECollisionChannel::ECC_GameTraceChannel1, CollisionParams))
+	{
+		ATBS_Hex* nHex = Cast<ATBS_Hex>(Hit.GetActor()); // cast to hex
+		if (nHex) // if valid
+		{
+			// call that hex get neighbour if we want more
+			// add the hex to the output
+			if(count > 1) hexes = nHex->GetNeigbourHex(direction, count - 1);
+			hexes.Add(nHex);
+		}
+	}
+	// return hex tiles if found
+	return hexes;
+}
+
+bool ATBS_Hex::HasNeighbourHex(TEnumAsByte<TileDirection> direction)
+{
+	return GetNeigbourHex(direction, 1).IsValidIndex(0);
+}
+
+USceneComponent* ATBS_Hex::GetOccupantComponent()
+{
+	return occupantSceneComp;
+}
+
+ATBS_Object* ATBS_Hex::GetOccupant()
+{
+	return occupant;
+}
+
+void ATBS_Hex::SetOccupant(ATBS_Object* newOcc)
+{
+	occupant = newOcc;
+}
+
+void ATBS_Hex::Spawn()
 {
 	floatTimeline.PlayFromStart();
 }
@@ -92,8 +163,11 @@ void ATBS_Hex::FloatProgress(float Value)
 	hexMeshComp->SetRelativeLocation(newLocation, false);
 }
 
-void ATBS_Hex::Drop()
+void ATBS_Hex::Despawn()
 {
+	if (GetLifeSpan() != 0) return;
+	if(occupant) occupant->Despawn();
+	hexCollisionComp->SetCollisionResponseToChannel(ECollisionChannel::ECC_GameTraceChannel1, ECollisionResponse::ECR_Ignore);
 	floatTimeline.ReverseFromEnd();
 	SetLifeSpan(5);
 }

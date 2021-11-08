@@ -2,6 +2,7 @@
 
 
 #include "TBS_Object.h"
+#include "TBS_Hex.h"
 
 // Sets default values
 ATBS_Object::ATBS_Object()
@@ -12,10 +13,6 @@ ATBS_Object::ATBS_Object()
 	{
 		BaseMeshComp = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("StaticMesh"));
 		BaseMeshComp->AttachToComponent(RootComponent, FAttachmentTransformRules::KeepRelativeTransform);
-	}
-	if (!RootComponent)
-	{
-		RootComponent = CreateDefaultSubobject<USceneComponent>(TEXT("BaseSceneComponent"));
 	}
 }
 
@@ -31,5 +28,46 @@ void ATBS_Object::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
+}
+
+bool ATBS_Object::Action()
+{
+	return false;
+}
+
+void ATBS_Object::ShowInformation()
+{
+}
+
+void ATBS_Object::Select()
+{
+}
+
+void ATBS_Object::Deselect()
+{
+}
+
+void ATBS_Object::AttachToHex(ATBS_Hex* hex)
+{
+	DetachFromActor(FDetachmentTransformRules::KeepWorldTransform);
+	AttachToComponent(hex->GetOccupantComponent(),
+						FAttachmentTransformRules::KeepRelativeTransform);
+	if (currentHex)
+	{
+		currentHex->SetOccupant(nullptr);
+	}
+	currentHex = hex;
+	hex->SetOccupant(this);
+
+}
+
+ATBS_Hex* ATBS_Object::GetHex()
+{
+	return currentHex;
+}
+
+void ATBS_Object::Despawn()
+{
+	SetLifeSpan(5);
 }
 

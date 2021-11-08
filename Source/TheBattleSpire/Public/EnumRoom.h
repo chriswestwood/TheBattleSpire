@@ -7,26 +7,30 @@
 #include "EnumRoom.generated.h"
 
 
-UENUM()
-enum RoomStyle
+UENUM(BlueprintType)
+enum RoomLevel
 {
-	Grassland   UMETA(DisplayName = "Grass"),
-	Woodland    UMETA(DisplayName = "Wood"),
-	Stone       UMETA(DisplayName = "Stone"),
-	MetalRoom	UMETA(DisplayName = "Metal")
+	Level0   UMETA(DisplayName = "Start"),
+	Level1   UMETA(DisplayName = "Level1"),
+	Level2	 UMETA(DisplayName = "Level2"),
+	Level3	 UMETA(DisplayName = "Level3"),
+	Level4	 UMETA(DisplayName = "BossLevel"),
+	Level5	 UMETA(DisplayName = "None")
 };
 
-UENUM()
+UENUM(BlueprintType)
 enum RoomType
 {
-	Outside	UMETA(DisplayName = "Outside"),
-	Inside  UMETA(DisplayName = "Inside"),
-	Boss	UMETA(DisplayName = "BossRoom")
+	Type1   UMETA(DisplayName = "Open"),
+	Type2	UMETA(DisplayName = "Enclosed"),
+	Type3	UMETA(DisplayName = "Building"),
+	Type4	UMETA(DisplayName = "BossRoom")
 };
 
 UENUM()
 enum RoomDirection
 {
+	RNone	UMETA(DisplayName = "Blank"),
 	RNorth	UMETA(DisplayName = "N"),
 	REast   UMETA(DisplayName = "E"),
 	RSouth	UMETA(DisplayName = "S"),
@@ -42,13 +46,4 @@ enum TileDirection
 	TSouthWest	UMETA(DisplayName = "SW"),
 	TSouthEast  UMETA(DisplayName = "SE"),
 	TEast		UMETA(DisplayName = "E")
-};
-/**
- * 
- */
-UCLASS()
-class THEBATTLESPIRE_API UEnumRoomStyle : public UUserDefinedEnum
-{
-	GENERATED_BODY()
-	
 };

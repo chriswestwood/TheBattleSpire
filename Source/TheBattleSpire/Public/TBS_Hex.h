@@ -5,7 +5,10 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
 #include "Components/TimelineComponent.h"
+#include "EnumRoom.h"
 #include "TBS_Hex.generated.h"
+
+class ATBS_Object;
 
 UCLASS()
 class THEBATTLESPIRE_API ATBS_Hex : public AActor
@@ -18,17 +21,31 @@ public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
+	// grid functions
 	void SetGridLocation(FIntPoint newGridLoc);
 	void SetGridRoom(int newRoomNum);
 	const FIntPoint GetGridLocation();
 	const int GetGridRoom();
+	const FVector GetBaseLocation();
+	void SetRoomLevel(TEnumAsByte<RoomLevel> newL);
+	const TEnumAsByte<RoomLevel> GetRoomLevel();
 
-	// moves the hex up and down on spawn/despawn
-	void StartFloat();
+	// Neighbour functions
+	TArray<ATBS_Hex*> GetNeigbourHex(TEnumAsByte<TileDirection> direction, int count);
+	bool HasNeighbourHex(TEnumAsByte<TileDirection> direction);
+
+	// Occupant functions
+	USceneComponent* GetOccupantComponent();
+	ATBS_Object* GetOccupant();
+	void SetOccupant(ATBS_Object* newOcc);
+
+	// Called on creation to lift tile
+	void Spawn();
+	// timeline function
 	UFUNCTION()
 	void FloatProgress(float Value);
-	// called to despawn hex, used to also despawn any actor occuping
-	void Drop();
+	// called to despawn hex, used to also despawn any actor occuping it as well
+	void Despawn();
 
 protected:
 	// Called when the game starts or when spawned
@@ -46,11 +63,15 @@ protected:
 	class USceneComponent* occupantSceneComp;
 
 	// Grid Information
+	UPROPERTY(VisibleAnywhere, Category = Room)
 	FIntPoint gridLocation;
+	UPROPERTY(VisibleAnywhere, Category = Room)
 	int roomNumber;
+	TEnumAsByte<RoomLevel> currentRoomLevel;
 
 	//Occupant of hex
-	AActor* Occupant;
+	UPROPERTY(VisibleAnywhere, Category = Room)
+	ATBS_Object* occupant;
 
 	//spawn/despawn timeline info
 	UPROPERTY()

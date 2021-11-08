@@ -14,4 +14,14 @@ class THEBATTLESPIRE_API ATBS_Door : public ATBS_Object
 {
 	GENERATED_BODY()
 	
+public:
+	ATBS_Door();
+	bool Action() override;
+
+	void DeactivateDoor();
+
+protected:
+
+	bool bDoorActive;
+
 };

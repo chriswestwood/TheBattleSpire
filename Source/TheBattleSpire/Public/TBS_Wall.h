@@ -13,5 +13,8 @@ UCLASS()
 class THEBATTLESPIRE_API ATBS_Wall : public ATBS_Object
 {
 	GENERATED_BODY()
-	
+
+public:
+	// defaults constructor
+	ATBS_Wall();
 };

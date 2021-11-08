@@ -6,6 +6,8 @@
 #include "GameFramework/GameModeBase.h"
 #include "TBS_LevelGameMode.generated.h"
 
+class ATBS_GridSystem;
+
 /**
  * 
  */
@@ -16,4 +18,12 @@ class THEBATTLESPIRE_API ATBS_LevelGameMode : public AGameModeBase
 
 public:
 	ATBS_LevelGameMode();
+	virtual void BeginPlay() override;
+
+	UFUNCTION(BlueprintCallable, Category = grid)
+	ATBS_GridSystem* GetGridSystem();
+
+protected:
+
+	ATBS_GridSystem* gridSystem;
 };

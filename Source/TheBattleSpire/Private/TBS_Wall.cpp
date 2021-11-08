@@ -3,3 +3,7 @@
 
 #include "TBS_Wall.h"
 
+ATBS_Wall::ATBS_Wall()
+{
+
+}

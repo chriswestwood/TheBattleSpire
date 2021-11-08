@@ -4,6 +4,7 @@
 #include "TBS_LevelGameMode.h"
 #include "TBS_PlayerController.h"
 #include "TBS_PlayerPawn.h"
+#include "TBS_GridSystem.h"
 
 ATBS_LevelGameMode::ATBS_LevelGameMode()
 {
@@ -18,5 +19,15 @@ ATBS_LevelGameMode::ATBS_LevelGameMode()
 	//SpectatorClass = ATBS_SpectatorPawn::StaticClass();
 	PlayerControllerClass = ATBS_PlayerController::StaticClass();
 	//PlayerStateClass = ATBS_PlayerState::StaticClass();
+}
 
+void ATBS_LevelGameMode::BeginPlay()
+{
+	Super::BeginPlay();
+	gridSystem = GetWorld()->SpawnActor<ATBS_GridSystem>(ATBS_GridSystem::StaticClass(), FVector(0, 0, 0), FRotator(0, 0, 0));
+}
+
+ATBS_GridSystem* ATBS_LevelGameMode::GetGridSystem()
+{
+	return gridSystem;
 }

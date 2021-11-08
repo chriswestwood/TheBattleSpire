@@ -5,67 +5,33 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
 #include "EnumRoom.h"
+#include "LevelAssetStruct.h"
 #include "TBS_GridSystem.generated.h"
+class UDataTable;
+class ATBS_Hex;
 
 // Room Structure - holds information on each room 
-// including: Hex array, room offset, type ect. 
+// including: Hex array, room offset, Level num ect. 
 USTRUCT()
 struct THEBATTLESPIRE_API FRoomStruct
 {
 	GENERATED_BODY()
-protected:
-	FIntPoint worldOffset; // used to calculate where to position new room
-	FIntPoint roomSize; // size of the room x,y
-	int roomNumber;
-	TEnumAsByte<RoomStyle> roomStyle; // Current room style
-	TEnumAsByte<RoomStyle> roomNorthStyle; // North room style
-	TEnumAsByte<RoomStyle> roomEastStyle; // East room style
-	TEnumAsByte<RoomStyle> roomSouthStyle; // South room style
-	TEnumAsByte<RoomStyle> roomWestStyle; // West room style
-	TEnumAsByte<RoomType> roomType; // Current room type
-	
-public:
-	FVector2D GetWorldOffset() { return worldOffset; }
-	FIntPoint GetRoomSize() { return roomSize; }
-	int GetRoomNumber() { return roomNumber; }
-	TEnumAsByte<RoomStyle> GetStyle() { return roomStyle; }
-	TEnumAsByte<RoomStyle> GetNorthStyle() { return roomNorthStyle; }
-	TEnumAsByte<RoomStyle> GetEastStyle() { return roomEastStyle; }
-	TEnumAsByte<RoomStyle> GetSouthStyle() { return roomSouthStyle; }
-	TEnumAsByte<RoomStyle> GetWestStyle() { return roomWestStyle; }
 
-	void SetType(TEnumAsByte<RoomType> newType) { roomType = newType; }
-	void SetStyle(TEnumAsByte<RoomStyle> newStyle, bool bIsBoss = false)
-	{
-		roomStyle = newStyle;
-		if (bIsBoss) { SetType(RoomType::Boss); return;}
-		if (roomStyle = RoomStyle::Grassland)
-		{
-			SetType(RoomType::Outside);
-		}
-		else
-		{
-			SetType(RoomType::Inside);
-		}
-	}
-
-	void SetRoom(FIntPoint newSize,
-					FIntPoint newWorldOff,
-					int newRoomNumber,
-					TEnumAsByte<RoomStyle> newNorthStyle,
-					TEnumAsByte<RoomStyle> newEastStyle,
-					TEnumAsByte<RoomStyle> newSouthStyle,
-					TEnumAsByte<RoomStyle> newWestStyle)
-	{
-		roomSize = newSize;
-		worldOffset = newWorldOff;
-		roomNumber = newRoomNumber;
-		roomNorthStyle = newNorthStyle;
-		roomEastStyle = newEastStyle;
-		roomSouthStyle = newSouthStyle;
-		roomWestStyle = newWestStyle;
-	}
-
+	// room stats
+	FIntPoint              roomWorldOffset; // used to calculate where to position new room
+	FIntPoint              roomSize; // size of the room x,y
+	int                    roomNumber;
+	// Room levels
+	TEnumAsByte<RoomLevel> roomLevel;
+	TEnumAsByte<RoomLevel> roomNorthLevel; 
+	TEnumAsByte<RoomLevel> roomEastLevel; 
+	TEnumAsByte<RoomLevel> roomSouthLevel; 
+	TEnumAsByte<RoomLevel> roomWestLevel; 
+	// Door ranges
+	FIntPoint			   roomNorthDoorRange;
+	FIntPoint			   roomEastDoorRange;
+	FIntPoint			   roomSouthDoorRange;
+	FIntPoint	           roomWestDoorRange;
 	// set defaults for a room
 	FRoomStruct()
 	{
@@ -85,14 +51,17 @@ public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
+
+	// generate the Starting room.
+	UFUNCTION(BlueprintCallable, Category = Build)
+	void GenerateStartRoom();
+
 	// Main function to generate a Room, calls GenerateNewSquareRoom to build grid
 	UFUNCTION(BlueprintCallable, Category = Build)
-	void GenerateRoom(FIntPoint size,
-						TEnumAsByte<RoomDirection> direction,
+	void GenerateNextRoom(TEnumAsByte<RoomDirection> direction,
 						int doorOffset);
 	
-
-	void DestroyOldestRoom(int roomNum);
+	void DestroyOldRooms();
 
 protected:
 	// Called when the game starts or when spawned
@@ -101,24 +70,33 @@ protected:
 	// Generate a Square grid of Hex tiles as a room 
 	// set in the direction and offset provided
 	UFUNCTION()
-	void GenerateNewSquareRoom(FIntPoint size,
-								TEnumAsByte<RoomDirection> direction,
-								int doorOffset,
-								int roomNumber);
+	TArray<ATBS_Hex*> GenerateNewSquareRoom(FIntPoint size,
+			TEnumAsByte<RoomDirection> direction,
+			int doorOffset);
 
 	UFUNCTION()
-	void GenerateWallsAndDoors(int roomNumber);
+	void GenerateWallsAndDoors(FIntPoint size, TEnumAsByte<RoomDirection> entrance);
 		
-		
+	UFUNCTION()
+	FIntPoint GetDoorRange(int max, TEnumAsByte<RoomLevel> level);
+
+	UFUNCTION()
+	TEnumAsByte<RoomLevel> GetRandRoomLevel(TEnumAsByte<RoomLevel> currentLevel);
+
 	// VARIABLES
-	UPROPERTY()
-	TSubclassOf<class ATBS_Hex> HexBlueprint;
-	UPROPERTY()
-	TSubclassOf<class ATBS_Wall> WallBlueprint;
+	UPROPERTY(VisibleDefaultsOnly, Category = Room)
+	UDataTable* levelDataTable;
+	FLevelAssetStruct* levelDataRow;
 	UPROPERTY()
 	TArray<FRoomStruct> Rooms;
-	UPROPERTY()
+	UPROPERTY(VisibleAnywhere, Category = Room)
 	FIntPoint LastWorldOffset;
-	int roomCount;
+	UPROPERTY(VisibleAnywhere, Category= Room)
+	int currentRoomCount;
+	UPROPERTY(VisibleAnywhere, Category = Room)
+	int maxRoomsShownCount;
+
+	UPROPERTY()
+	TSubclassOf<ATBS_Hex> spawnHex;
 
 };

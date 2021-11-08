@@ -6,6 +6,8 @@
 #include "GameFramework/Actor.h"
 #include "TBS_Object.generated.h"
 
+class ATBS_Hex;
+
 UCLASS()
 class THEBATTLESPIRE_API ATBS_Object : public AActor
 {
@@ -17,6 +19,18 @@ public:
 
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
+	
+	// player interaction
+	virtual bool Action(); // returns bool to signify success to controller
+	virtual void ShowInformation(); // shows the selection info on HUD
+	virtual void Select();
+	virtual void Deselect();
+	// Hex functions
+	void AttachToHex(ATBS_Hex* hex);
+	ATBS_Hex* GetHex();
+
+	// Spawn functions
+	void Despawn();
 
 protected:
 	// Called when the game starts or when spawned
@@ -24,7 +38,7 @@ protected:
 
 	// Components
 	// Base
-	UPROPERTY(VisibleDefaultsOnly, Category = Mesh)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Mesh)
 	class UStaticMeshComponent* BaseMeshComp;
 
 	// Object Stats
@@ -32,4 +46,5 @@ protected:
 	bool bTargetable; // can be selected as a target for target actions
 	bool bDamageable; // can be damaged by attacks
 	bool bUseable; // can be used when in range
+	ATBS_Hex* currentHex; // space it occupies
 };
