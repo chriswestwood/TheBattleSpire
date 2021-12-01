@@ -8,6 +8,8 @@
 
 class ATBS_CharacterPawn;
 class ATBS_Object;
+class ATBS_Hex;
+class UParticleSystem;
 /**
  * 
  */
@@ -17,9 +19,9 @@ class THEBATTLESPIRE_API ATBS_PlayerController : public APlayerController
 	GENERATED_BODY()
 public:
 		ATBS_PlayerController();
-
+		virtual void PlayerTick(float DeltaTime) override;
 		// Sets
-		void UpdateLastSelectedObject(ATBS_Object* o);
+		void UpdateSelectedObject(ATBS_Object* o);
 		void UpdateStatHUD();
 
 		// Input
@@ -29,10 +31,19 @@ public:
 		// Called to bind functionality to input
 		virtual void SetupInputComponent() override;
 
+		//Updates
+		void UpdateHoverHex(ATBS_Hex* hex);
+
 protected:
 
+	UPROPERTY()
 	ATBS_CharacterPawn* selectedPawn;
-	ATBS_Object* lastSelectedObject;
+	UPROPERTY()
+	ATBS_Hex* selectedHex;
+	UPROPERTY()
+	ATBS_Hex* hoverHex;
+	UPROPERTY()
+	UParticleSystem* hoverParticle;
 
 };
 

@@ -5,6 +5,8 @@
 #include "TBS_Object.h"
 #include "TBS_Hex.h"
 #include "TBS_CharacterPawn.h"
+#include "TBS_CameraPawn.h"
+#include "Particles/ParticleSystem.h"
 
 ATBS_PlayerController::ATBS_PlayerController()
 {
@@ -14,17 +16,41 @@ ATBS_PlayerController::ATBS_PlayerController()
 	DefaultMouseCursor = EMouseCursor::Hand;
 }
 
-void ATBS_PlayerController::UpdateLastSelectedObject(ATBS_Object* o)
+void ATBS_PlayerController::PlayerTick(float DeltaTime)
+{
+	Super::PlayerTick(DeltaTime);
+	// trace to mouse coord
+	ATBS_Hex* traceHex = NULL;
+	FHitResult Hit;
+	GetHitResultUnderCursor(ECC_GameTraceChannel1, false, Hit);
+	if (Hit.bBlockingHit) {
+		if (Hit.Actor != NULL) 
+		{
+			ATBS_Object* traceObject = Cast<ATBS_Object>(Hit.Actor);
+			if (traceObject)
+			{
+				traceHex = traceObject->GetHex();
+			}
+			else
+			{
+				traceHex = Cast<ATBS_Hex>(Hit.Actor);
+			}
+		}
+	}
+	UpdateHoverHex(traceHex);
+}
+
+void ATBS_PlayerController::UpdateSelectedObject(ATBS_Object* o)
 {
 	// deselect current object
-	if (lastSelectedObject == o) return;
-	if (lastSelectedObject) lastSelectedObject->Deselect();
+	//if (SelectedObject == o) return;
+	//if (SelectedObject) lastSelectedObject->Deselect();
 	// select new object
-	lastSelectedObject = o;
+	//lastSelectedObject = o;
 	// if not null, perform the select function on object
-	if (lastSelectedObject) lastSelectedObject->Select();
+	//if (lastSelectedObject) lastSelectedObject->Select();
 	// update the HUD with the new object
-	UpdateStatHUD();
+	//UpdateStatHUD();
 }
 
 void ATBS_PlayerController::UpdateStatHUD()
@@ -33,39 +59,25 @@ void ATBS_PlayerController::UpdateStatHUD()
 
 void ATBS_PlayerController::ClickSelect()
 {
-	// trace to mouse coord
-	ATBS_Object* selectedObject = NULL;
-	FHitResult Hit;
-	GetHitResultUnderCursor(ECC_Visibility, false, Hit);
-	if (Hit.bBlockingHit) {
-		if (Hit.Actor != NULL) {
-			if (Cast<ATBS_Hex>(Hit.Actor)) selectedObject = Cast<ATBS_Hex>(Hit.Actor)->GetOccupant();
-			else selectedObject = Cast<ATBS_Object>(Hit.Actor);
-		}
-	}
-	// check for valid object
-	if (selectedObject)
+	if (hoverHex)
 	{
-		if (Cast<ATBS_CharacterPawn>(selectedObject)) selectedPawn = Cast<ATBS_CharacterPawn>(selectedObject);
+
 	}
-	UpdateLastSelectedObject(selectedObject);
 }
 
 void ATBS_PlayerController::ClickAction()
 {
-	// trace to mouse coord
-	ATBS_Object* selectedObject = NULL;
-	FHitResult Hit;
-	GetHitResultUnderCursor(ECC_Visibility, false, Hit);
-	if (Hit.bBlockingHit) {
-		if (Hit.Actor != NULL) {
-			if (Cast<ATBS_Hex>(Hit.Actor)) selectedObject = Cast<ATBS_Hex>(Hit.Actor)->GetOccupant();
-			else selectedObject = Cast<ATBS_Object>(Hit.Actor);
-		}
-	}
-	if (selectedObject)
+	if (hoverHex)
 	{
-		selectedObject->Action();
+		ATBS_Object* clickObject = NULL;
+		clickObject = hoverHex->GetOccupant();
+		if (clickObject)
+		{
+			if (clickObject->Action(selectedPawn)) 
+			{
+
+			}
+		}
 	}
 }
 
@@ -78,4 +90,12 @@ void ATBS_PlayerController::SetupInputComponent()
 	InputComponent->BindAction("Select", IE_Pressed, this, &ATBS_PlayerController::ClickSelect);
 	InputComponent->BindAction("Action", IE_Pressed, this, &ATBS_PlayerController::ClickAction);
 
+}
+
+void ATBS_PlayerController::UpdateHoverHex(ATBS_Hex* hex)
+{
+	if (hex == hoverHex) return;
+	// new hex is highlighted
+	hoverHex = hex;
+	Cast<ATBS_CameraPawn>(GetPawn())->UpdateParticle(hoverHex);
 }

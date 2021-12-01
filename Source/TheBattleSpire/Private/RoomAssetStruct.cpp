@@ -1,8 +1,5 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "TBS_Wall.h"
+#include "RoomAssetStruct.h"
 
-ATBS_Wall::ATBS_Wall()
-{
-}

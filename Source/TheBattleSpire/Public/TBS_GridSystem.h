@@ -6,6 +6,8 @@
 #include "GameFramework/Actor.h"
 #include "EnumRoom.h"
 #include "LevelAssetStruct.h"
+#include "RoomAssetStruct.h"
+#include "EnemyListStruct.h"
 #include "TBS_GridSystem.generated.h"
 class UDataTable;
 class ATBS_Hex;
@@ -18,20 +20,22 @@ struct THEBATTLESPIRE_API FRoomStruct
 	GENERATED_BODY()
 
 	// room stats
-	FIntPoint              roomWorldOffset; // used to calculate where to position new room
-	FIntPoint              roomSize; // size of the room x,y
-	int                    roomNumber;
+	FIntPoint roomWorldOffset; // used to calculate where to position new room
+	FIntPoint roomSize; // size of the room x,y
+	int roomNumber;
 	// Room levels
-	TEnumAsByte<RoomLevel> roomLevel;
-	TEnumAsByte<RoomLevel> roomNorthLevel; 
-	TEnumAsByte<RoomLevel> roomEastLevel; 
-	TEnumAsByte<RoomLevel> roomSouthLevel; 
-	TEnumAsByte<RoomLevel> roomWestLevel; 
+	int roomLevel;
+	int roomNorthLevel; 
+	int roomEastLevel;
+	int roomSouthLevel;
+	int roomWestLevel;
 	// Door ranges
-	FIntPoint			   roomNorthDoorRange;
-	FIntPoint			   roomEastDoorRange;
-	FIntPoint			   roomSouthDoorRange;
-	FIntPoint	           roomWestDoorRange;
+	FIntPoint roomNorthDoorRange;
+	FIntPoint roomEastDoorRange;
+	FIntPoint roomSouthDoorRange;
+	FIntPoint roomWestDoorRange;
+	TEnumAsByte<RoomDirection> entrance;
+	TArray<ATBS_Hex*> hexes;
 	// set defaults for a room
 	FRoomStruct()
 	{
@@ -70,23 +74,33 @@ protected:
 	// Generate a Square grid of Hex tiles as a room 
 	// set in the direction and offset provided
 	UFUNCTION()
-	TArray<ATBS_Hex*> GenerateNewSquareRoom(FIntPoint size,
-			TEnumAsByte<RoomDirection> direction,
+		TArray<ATBS_Hex*> GenerateNewSquareRoom(struct FRoomStruct& room,
 			int doorOffset);
 
 	UFUNCTION()
-	void GenerateWallsAndDoors(FIntPoint size, TEnumAsByte<RoomDirection> entrance);
-		
-	UFUNCTION()
-	FIntPoint GetDoorRange(int max, TEnumAsByte<RoomLevel> level);
+	void GenerateWallsAndDoors(struct FRoomStruct& room);
 
 	UFUNCTION()
-	TEnumAsByte<RoomLevel> GetRandRoomLevel(TEnumAsByte<RoomLevel> currentLevel);
+	void GenerateInterior(struct FRoomStruct& room);
+		
+	UFUNCTION()
+	FIntPoint GetDoorRange(int max, TEnumAsByte<RoomType> type);
+
+	UFUNCTION()
+	int GetRandRoomLevel(int currentRoomLevel);
+
+	UFUNCTION()
+	TSubclassOf<ATBS_Hex> GetRandHex(TArray<FHexPercentage> Hexes);
+	UFUNCTION()
+	TSubclassOf<ATBS_Object> GetRandObject(TArray<FObjectPercentage> Objects, bool returnLastOnNone = false);
 
 	// VARIABLES
 	UPROPERTY(VisibleDefaultsOnly, Category = Room)
 	UDataTable* levelDataTable;
+	UDataTable* roomDataTable;
 	FLevelAssetStruct* levelDataRow;
+	TArray<FRoomAssetStruct*> roomDataRows;
+	TArray<FEnemyListStruct*> EnemyList;
 	UPROPERTY()
 	TArray<FRoomStruct> Rooms;
 	UPROPERTY(VisibleAnywhere, Category = Room)

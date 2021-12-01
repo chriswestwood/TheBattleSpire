@@ -1,17 +1,19 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "TBS_PlayerPawn.h"
+#include "TBS_CameraPawn.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "Camera/CameraComponent.h"
+#include "Particles/ParticleSystemComponent.h"
+#include "TBS_Hex.h"
 #include "Kismet/KismetMathLibrary.h"
 
 // Sets default values
-ATBS_PlayerPawn::ATBS_PlayerPawn()
+ATBS_CameraPawn::ATBS_CameraPawn()
 {
- 	// Set this pawn to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
+	// Set this pawn to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
-	
+
 	if (!RootComponent)
 	{
 		RootComponent = CreateDefaultSubobject<USceneComponent>(TEXT("PlayerSceneComponent"));
@@ -30,6 +32,19 @@ ATBS_PlayerPawn::ATBS_PlayerPawn()
 		cameraBoom->bInheritRoll = true;
 		cameraBoom->bDoCollisionTest = false;
 	}
+	if(!hoverParticleComp)
+	{
+		hoverParticleComp = CreateDefaultSubobject<UParticleSystemComponent>(TEXT("HoverParticle"));
+		hoverParticleComp->SetupAttachment(RootComponent);
+		UParticleSystem* defaultParticleSystem;
+		static ConstructorHelpers::FObjectFinder<UParticleSystem> ParticleClass(TEXT("ParticleSystem'/Game/Blueprints/Player/DefaultHoverParticle.DefaultHoverParticle'"));
+		if (ParticleClass.Object)
+		{
+			defaultParticleSystem = ParticleClass.Object;
+			hoverParticleComp->SetTemplate(defaultParticleSystem);
+		}
+		hoverParticleComp->Deactivate();
+	}
 	// Create a camera
 	playerCamera = CreateDefaultSubobject<UCameraComponent>(TEXT("PlayerCamera"));
 	playerCamera->SetupAttachment(cameraBoom, USpringArmComponent::SocketName); // Attach the camera to the end of the boom and let the boom adjust to match the controller orientation
@@ -43,7 +58,7 @@ ATBS_PlayerPawn::ATBS_PlayerPawn()
 
 
 // Called when the game starts or when spawned
-void ATBS_PlayerPawn::BeginPlay()
+void ATBS_CameraPawn::BeginPlay()
 {
 	Super::BeginPlay();
 	targetRotation = GetActorRotation();
@@ -57,25 +72,41 @@ void ATBS_PlayerPawn::BeginPlay()
 }
 
 // Called every frame
-void ATBS_PlayerPawn::Tick(float DeltaTime)
+void ATBS_CameraPawn::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 	rotateTimeline.TickTimeline(DeltaTime);
 }
 
+void ATBS_CameraPawn::UpdateParticle(ATBS_Hex* hex)
+{
+	if (hex)
+	{
+		if (hex->GetLifeSpan() == 0)
+		{
+			if (!hoverParticleComp->IsActive()) hoverParticleComp->Activate();
+			hoverParticleComp->AttachToComponent(hex->GetRootComponent(), FAttachmentTransformRules::SnapToTargetNotIncludingScale);
+			// set particle type based on hex
+			return;
+		}
+	}
+	hoverParticleComp->Deactivate();
+
+}
+
 // Called to bind functionality to input
-void ATBS_PlayerPawn::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
+void ATBS_CameraPawn::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
 	// Set up gameplay key bindings
 	check(PlayerInputComponent);
-	PlayerInputComponent->BindAxis("Forward", this, &ATBS_PlayerPawn::MoveForward);
-	PlayerInputComponent->BindAxis("Right", this, &ATBS_PlayerPawn::MoveRight);
-	PlayerInputComponent->BindAction("RotateClock", EInputEvent::IE_Pressed, this, &ATBS_PlayerPawn::RotateClock);
-	PlayerInputComponent->BindAction("RotateAntiClock", EInputEvent::IE_Pressed,this, &ATBS_PlayerPawn::RotateAntiClock);
+	PlayerInputComponent->BindAxis("Forward", this, &ATBS_CameraPawn::MoveForward);
+	PlayerInputComponent->BindAxis("Right", this, &ATBS_CameraPawn::MoveRight);
+	PlayerInputComponent->BindAction("RotateClock", EInputEvent::IE_Pressed, this, &ATBS_CameraPawn::RotateClock);
+	PlayerInputComponent->BindAction("RotateAntiClock", EInputEvent::IE_Pressed, this, &ATBS_CameraPawn::RotateAntiClock);
 }
 
-void ATBS_PlayerPawn::MoveForward(float Value)
+void ATBS_CameraPawn::MoveForward(float Value)
 {
 	if ((Controller != nullptr) && (Value != 0.0f))
 	{
@@ -84,7 +115,7 @@ void ATBS_PlayerPawn::MoveForward(float Value)
 	}
 }
 
-void ATBS_PlayerPawn::MoveRight(float Value)
+void ATBS_CameraPawn::MoveRight(float Value)
 {
 	if ((Controller != nullptr) && (Value != 0.0f))
 	{
@@ -93,7 +124,7 @@ void ATBS_PlayerPawn::MoveRight(float Value)
 	}
 }
 
-void ATBS_PlayerPawn::RotateClock()
+void ATBS_CameraPawn::RotateClock()
 {
 	//AddActorWorldRotation(FRotator(0, 90, 0), false);
 	if (rotateCurveFloat)
@@ -102,9 +133,9 @@ void ATBS_PlayerPawn::RotateClock()
 		targetRotation.Yaw += rotateAmount;
 		rotateTimeline.PlayFromStart();
 	}
-	
+
 }
-void ATBS_PlayerPawn::RotateAntiClock()
+void ATBS_CameraPawn::RotateAntiClock()
 {
 	//AddActorWorldRotation(FRotator(0, -90, 0), false);
 	if (rotateCurveFloat)
@@ -115,7 +146,7 @@ void ATBS_PlayerPawn::RotateAntiClock()
 	}
 }
 
-void ATBS_PlayerPawn::RotateProgress(float Value)
+void ATBS_CameraPawn::RotateProgress(float Value)
 {
 	FRotator newRotation = FMath::Lerp(startRotation, targetRotation, Value);
 	RootComponent->SetWorldRotation(newRotation, false);

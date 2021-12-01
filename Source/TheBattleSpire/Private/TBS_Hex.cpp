@@ -16,6 +16,11 @@ ATBS_Hex::ATBS_Hex()
 		hexCollisionComp = CreateDefaultSubobject<USphereComponent>(TEXT("SphereComponent"));
 		// Set the sphere's collision radius.
 		hexCollisionComp->InitSphereRadius(130.0f);
+		// set trace response
+		hexCollisionComp->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
+		hexCollisionComp->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
+		hexCollisionComp->SetCollisionResponseToChannel(ECollisionChannel::ECC_GameTraceChannel1, ECollisionResponse::ECR_Block);
+		hexCollisionComp->SetCollisionResponseToChannel(ECollisionChannel::ECC_GameTraceChannel2, ECollisionResponse::ECR_Block);
 		// Set the root component to be the collision component.
 		RootComponent = hexCollisionComp;
 	}
@@ -60,6 +65,7 @@ void ATBS_Hex::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 	floatTimeline.TickTimeline(DeltaTime);
+
 }
 
 void ATBS_Hex::SetGridLocation(FIntPoint newGridLoc)
@@ -87,17 +93,17 @@ const FVector ATBS_Hex::GetBaseLocation()
 	return targetLocation;
 }
 
-void ATBS_Hex::SetRoomLevel(TEnumAsByte<RoomLevel> newL)
+void ATBS_Hex::SetRoomLevel(int newL)
 {
 	currentRoomLevel = newL;
 }
 
-const TEnumAsByte<RoomLevel> ATBS_Hex::GetRoomLevel()
+const int ATBS_Hex::GetRoomLevel()
 {
 	return currentRoomLevel;
 }
 
-TArray<ATBS_Hex*> ATBS_Hex::GetNeigbourHex(TEnumAsByte<TileDirection> direction, int count)
+TArray<ATBS_Hex*> ATBS_Hex::GetHexDirection(TEnumAsByte<TileDirection> direction, int count)
 {
 	TArray<ATBS_Hex*> hexes;
 
@@ -117,14 +123,14 @@ TArray<ATBS_Hex*> ATBS_Hex::GetNeigbourHex(TEnumAsByte<TileDirection> direction,
 	CollisionParams.AddIgnoredActor(this);
 
 	// get line trace to the next hex
-	if (GetWorld()->LineTraceSingleByChannel(Hit, GetActorLocation(), endLoc, ECollisionChannel::ECC_GameTraceChannel1, CollisionParams))
+	if (GetWorld()->LineTraceSingleByChannel(Hit, GetActorLocation(), endLoc, ECollisionChannel::ECC_GameTraceChannel2, CollisionParams))
 	{
 		ATBS_Hex* nHex = Cast<ATBS_Hex>(Hit.GetActor()); // cast to hex
 		if (nHex) // if valid
 		{
 			// call that hex get neighbour if we want more
 			// add the hex to the output
-			if(count > 1) hexes = nHex->GetNeigbourHex(direction, count - 1);
+			if(count > 1) hexes = nHex->GetHexDirection(direction, count - 1);
 			hexes.Add(nHex);
 		}
 	}
@@ -132,9 +138,9 @@ TArray<ATBS_Hex*> ATBS_Hex::GetNeigbourHex(TEnumAsByte<TileDirection> direction,
 	return hexes;
 }
 
-bool ATBS_Hex::HasNeighbourHex(TEnumAsByte<TileDirection> direction)
+TArray<ATBS_Hex*> ATBS_Hex::GetHexRadius(int size)
 {
-	return GetNeigbourHex(direction, 1).IsValidIndex(0);
+	return TArray<ATBS_Hex*>();
 }
 
 USceneComponent* ATBS_Hex::GetOccupantComponent()
@@ -147,9 +153,21 @@ ATBS_Object* ATBS_Hex::GetOccupant()
 	return occupant;
 }
 
+bool ATBS_Hex::isOccupied()
+{
+	return occupant->IsValidLowLevel();
+}
+
 void ATBS_Hex::SetOccupant(ATBS_Object* newOcc)
 {
 	occupant = newOcc;
+}
+
+void ATBS_Hex::SetDecoration(ATBS_Object* newDec)
+{
+	decoration = newDec;
+	decoration->AttachToComponent(GetOccupantComponent(),
+		FAttachmentTransformRules::KeepRelativeTransform);
 }
 
 void ATBS_Hex::Spawn()
@@ -161,12 +179,17 @@ void ATBS_Hex::FloatProgress(float Value)
 {
 	FVector newLocation = FMath::Lerp(startLocation, targetLocation, Value);
 	hexMeshComp->SetRelativeLocation(newLocation, false);
+	if (Value > 1.5)
+	{
+		floatTimeline.Stop();
+	}
 }
 
 void ATBS_Hex::Despawn()
 {
 	if (GetLifeSpan() != 0) return;
-	if(occupant) occupant->Despawn();
+	if (occupant) occupant->Despawn();
+	if (decoration) decoration->Despawn();
 	hexCollisionComp->SetCollisionResponseToChannel(ECollisionChannel::ECC_GameTraceChannel1, ECollisionResponse::ECR_Ignore);
 	floatTimeline.ReverseFromEnd();
 	SetLifeSpan(5);

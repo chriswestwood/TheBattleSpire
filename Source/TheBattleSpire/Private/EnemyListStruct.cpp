@@ -1,8 +1,5 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "TBS_Wall.h"
+#include "EnemyListStruct.h"
 
-ATBS_Wall::ATBS_Wall()
-{
-}

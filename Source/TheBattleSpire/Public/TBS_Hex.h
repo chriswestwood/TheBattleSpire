@@ -9,6 +9,7 @@
 #include "TBS_Hex.generated.h"
 
 class ATBS_Object;
+class ATBS_Decoration;
 
 UCLASS()
 class THEBATTLESPIRE_API ATBS_Hex : public AActor
@@ -27,17 +28,19 @@ public:
 	const FIntPoint GetGridLocation();
 	const int GetGridRoom();
 	const FVector GetBaseLocation();
-	void SetRoomLevel(TEnumAsByte<RoomLevel> newL);
-	const TEnumAsByte<RoomLevel> GetRoomLevel();
+	void SetRoomLevel(int newL);
+	const int GetRoomLevel();
 
 	// Neighbour functions
-	TArray<ATBS_Hex*> GetNeigbourHex(TEnumAsByte<TileDirection> direction, int count);
-	bool HasNeighbourHex(TEnumAsByte<TileDirection> direction);
+	TArray<ATBS_Hex*> GetHexDirection(TEnumAsByte<TileDirection> direction, int count);
+	TArray<ATBS_Hex*> GetHexRadius(int size);
 
 	// Occupant functions
 	USceneComponent* GetOccupantComponent();
 	ATBS_Object* GetOccupant();
+	bool isOccupied();
 	void SetOccupant(ATBS_Object* newOcc);
+	void SetDecoration(ATBS_Object* newDec);
 
 	// Called on creation to lift tile
 	void Spawn();
@@ -61,17 +64,22 @@ protected:
 	// Scene Component for occupant to stand
 	UPROPERTY(VisibleDefaultsOnly, Category = Hex)
 	class USceneComponent* occupantSceneComp;
+	
+
 
 	// Grid Information
 	UPROPERTY(VisibleAnywhere, Category = Room)
 	FIntPoint gridLocation;
 	UPROPERTY(VisibleAnywhere, Category = Room)
 	int roomNumber;
-	TEnumAsByte<RoomLevel> currentRoomLevel;
+	int currentRoomLevel;
 
 	//Occupant of hex
 	UPROPERTY(VisibleAnywhere, Category = Room)
 	ATBS_Object* occupant;
+	// Decoration
+	UPROPERTY(VisibleAnywhere, Category = Room)
+	ATBS_Object* decoration;
 
 	//spawn/despawn timeline info
 	UPROPERTY()

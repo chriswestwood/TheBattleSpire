@@ -21,7 +21,7 @@ public:
 	virtual void Tick(float DeltaTime) override;
 	
 	// player interaction
-	virtual bool Action(); // returns bool to signify success to controller
+	virtual bool Action(ATBS_Object* pawn); // returns bool to signify success to controller
 	virtual void ShowInformation(); // shows the selection info on HUD
 	virtual void Select();
 	virtual void Deselect();

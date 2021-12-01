@@ -3,16 +3,16 @@
 
 #include "TBS_LevelGameMode.h"
 #include "TBS_PlayerController.h"
-#include "TBS_PlayerPawn.h"
+#include "TBS_CameraPawn.h"
 #include "TBS_GridSystem.h"
 
 ATBS_LevelGameMode::ATBS_LevelGameMode()
 {
 	// set default pawn class to our Blueprinted character
-	static ConstructorHelpers::FClassFinder<APawn> PlayerPawnBPClass(TEXT("/Game/Blueprints/Player/TBS_PlayerPawnBP"));
-	if (PlayerPawnBPClass.Class != NULL)
+	static ConstructorHelpers::FClassFinder<APawn> CameraPawnBPClass(TEXT("/Game/Blueprints/Player/TBS_CameraPawnBP"));
+	if (CameraPawnBPClass.Class != NULL)
 	{
-		DefaultPawnClass = PlayerPawnBPClass.Class;
+		DefaultPawnClass = CameraPawnBPClass.Class;
 	}
 	//GameStateClass = ATBS_GameState::StaticClass();
 	//PlayerStateClass = ATBS_PlayerState::StaticClass();

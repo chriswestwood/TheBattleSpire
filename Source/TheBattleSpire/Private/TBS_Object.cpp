@@ -8,11 +8,15 @@
 ATBS_Object::ATBS_Object()
 {
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
-	PrimaryActorTick.bCanEverTick = true;
+	PrimaryActorTick.bCanEverTick = false;
+	PrimaryActorTick.bStartWithTickEnabled = false;
 	if (!BaseMeshComp)
 	{
 		BaseMeshComp = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("StaticMesh"));
 		BaseMeshComp->AttachToComponent(RootComponent, FAttachmentTransformRules::KeepRelativeTransform);
+		BaseMeshComp->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
+		BaseMeshComp->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
+		BaseMeshComp->SetCollisionResponseToChannel(ECollisionChannel::ECC_GameTraceChannel1, ECollisionResponse::ECR_Block);
 	}
 }
 
@@ -30,7 +34,7 @@ void ATBS_Object::Tick(float DeltaTime)
 
 }
 
-bool ATBS_Object::Action()
+bool ATBS_Object::Action(ATBS_Object* pawn)
 {
 	return false;
 }

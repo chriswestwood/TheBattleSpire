@@ -5,16 +5,17 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Pawn.h"
 #include "Components/TimelineComponent.h"
-#include "TBS_PlayerPawn.generated.h"
+#include "TBS_CameraPawn.generated.h"
+class ATBS_Hex;
 
 UCLASS()
-class THEBATTLESPIRE_API ATBS_PlayerPawn : public APawn
+class THEBATTLESPIRE_API ATBS_CameraPawn : public APawn
 {
 	GENERATED_BODY()
 
 public:
 	// Sets default values for this pawn's properties
-	ATBS_PlayerPawn();
+	ATBS_CameraPawn();
 
 	// Returns cameraBoom
 	FORCEINLINE class USpringArmComponent* GetCameraBoom() const { return cameraBoom; }
@@ -27,9 +28,11 @@ protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
-public:	
+public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
+
+	void UpdateParticle(ATBS_Hex* hex);
 
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
@@ -38,8 +41,9 @@ public:
 	void MoveRight(float v);
 	void RotateClock();
 	void RotateAntiClock();
+
 	UFUNCTION()
-	void RotateProgress(float Value);
+		void RotateProgress(float Value);
 
 	/** Camera boom positioning the camera above the map */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
@@ -47,17 +51,20 @@ public:
 	/** player Camera */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
 		class UCameraComponent* playerCamera;
+	// Particle system for highlighted hex
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Particle, meta = (AllowPrivateAccess = "true"))
+		class UParticleSystemComponent* hoverParticleComp;
 
 	//player movement
 	float moveSpeed; //camera movement speed
 	float baseTurnRate; // camera turn speed
 	float rotateAmount; // amount to rotate per button press
 	UPROPERTY()
-	FTimeline rotateTimeline;
+		FTimeline rotateTimeline;
 	UPROPERTY(EditAnywhere, Category = "Timeline")
-	class UCurveFloat* rotateCurveFloat;
+		class UCurveFloat* rotateCurveFloat;
 	UPROPERTY()
-	FRotator startRotation;
+		FRotator startRotation;
 	UPROPERTY()
-	FRotator targetRotation; // target for the timeline rotation
+		FRotator targetRotation; // target for the timeline rotation
 };

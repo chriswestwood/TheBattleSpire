@@ -8,23 +8,12 @@
 
 
 UENUM(BlueprintType)
-enum RoomLevel
-{
-	Level0   UMETA(DisplayName = "Start"),
-	Level1   UMETA(DisplayName = "Level1"),
-	Level2	 UMETA(DisplayName = "Level2"),
-	Level3	 UMETA(DisplayName = "Level3"),
-	Level4	 UMETA(DisplayName = "BossLevel"),
-	Level5	 UMETA(DisplayName = "None")
-};
-
-UENUM(BlueprintType)
 enum RoomType
 {
 	Type1   UMETA(DisplayName = "Open"),
 	Type2	UMETA(DisplayName = "Enclosed"),
 	Type3	UMETA(DisplayName = "Building"),
-	Type4	UMETA(DisplayName = "BossRoom")
+	Type4	UMETA(DisplayName = "None")
 };
 
 UENUM()

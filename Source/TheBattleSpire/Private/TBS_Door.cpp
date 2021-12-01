@@ -7,13 +7,14 @@
 #include "TBS_LevelGameMode.h"
 #include "TBS_GridSystem.h"
 #include "TBS_Hex.h"
+#include "TBS_Object.h"
 
 ATBS_Door::ATBS_Door()
 {
 	bDoorActive = true;
 }
 
-bool ATBS_Door::Action()
+bool ATBS_Door::Action(ATBS_Object* pawn)
 {
 	if (!bDoorActive) return false;
 	ATBS_GridSystem* grid = Cast<ATBS_LevelGameMode>(UGameplayStatics::GetGameMode(GetWorld()))->GetGridSystem();
