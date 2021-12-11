@@ -12,9 +12,11 @@ ATBS_CharacterPawn::ATBS_CharacterPawn()
 	if (!spotLight)
 	{
 		spotLight = CreateDefaultSubobject<USpotLightComponent>(TEXT("SpotLight"));
-		spotLight->SetRelativeLocation(FVector(-140, 0, 230));
+		spotLight->SetRelativeLocation(FVector(-140, 0, 600));
 		spotLight->SetRelativeRotation(FRotator(-45, 0, 0));
-		spotLight->Intensity = 5000.0f;
+		spotLight->Intensity = 20000.0f;
+		spotLight->AttenuationRadius = 10000.0f;
+		spotLight->OuterConeAngle = 44.0f;
 		spotLight->AttachToComponent(RootComponent, FAttachmentTransformRules::KeepRelativeTransform);
 	}
 
