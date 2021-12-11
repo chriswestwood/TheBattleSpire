@@ -7,16 +7,17 @@
 #include "TBS_LevelGameMode.h"
 #include "TBS_GridSystem.h"
 #include "TBS_Hex.h"
-#include "TBS_Object.h"
+#include "TBS_UnitPawn.h"
 
 ATBS_Door::ATBS_Door()
 {
 	bDoorActive = true;
 }
 
-bool ATBS_Door::Action(ATBS_Object* pawn)
+bool ATBS_Door::Action(ATBS_UnitPawn* pawn)
 {
 	if (!bDoorActive) return false;
+	if (!GetHex()->isHexInRange(pawn->GetHex(), 1)) return false;
 	ATBS_GridSystem* grid = Cast<ATBS_LevelGameMode>(UGameplayStatics::GetGameMode(GetWorld()))->GetGridSystem();
 	if (!grid) return false;
 	// check that a player character is in range of the door

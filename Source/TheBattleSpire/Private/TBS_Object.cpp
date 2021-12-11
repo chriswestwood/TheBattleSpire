@@ -3,6 +3,7 @@
 
 #include "TBS_Object.h"
 #include "TBS_Hex.h"
+#include "TBS_UnitPawn.h"
 
 // Sets default values
 ATBS_Object::ATBS_Object()
@@ -34,7 +35,7 @@ void ATBS_Object::Tick(float DeltaTime)
 
 }
 
-bool ATBS_Object::Action(ATBS_Object* pawn)
+bool ATBS_Object::Action(ATBS_UnitPawn* pawn)
 {
 	return false;
 }
@@ -51,18 +52,21 @@ void ATBS_Object::Deselect()
 {
 }
 
-void ATBS_Object::AttachToHex(ATBS_Hex* hex)
+void ATBS_Object::AttachToHex(ATBS_Hex* hex, bool MoveTo)
 {
-	DetachFromActor(FDetachmentTransformRules::KeepWorldTransform);
+	DetachFromHex();
 	AttachToComponent(hex->GetOccupantComponent(),
-						FAttachmentTransformRules::KeepRelativeTransform);
-	if (currentHex)
-	{
-		currentHex->SetOccupant(nullptr);
-	}
+						MoveTo ? FAttachmentTransformRules::SnapToTargetNotIncludingScale : FAttachmentTransformRules::KeepWorldTransform);
+
 	currentHex = hex;
 	hex->SetOccupant(this);
 
+}
+
+void ATBS_Object::DetachFromHex()
+{
+	DetachFromActor(FDetachmentTransformRules::KeepWorldTransform);
+	if(currentHex)currentHex->SetOccupant(nullptr);
 }
 
 ATBS_Hex* ATBS_Object::GetHex()
@@ -72,6 +76,7 @@ ATBS_Hex* ATBS_Object::GetHex()
 
 void ATBS_Object::Despawn()
 {
+	DetachFromHex();
 	SetLifeSpan(5);
 }
 

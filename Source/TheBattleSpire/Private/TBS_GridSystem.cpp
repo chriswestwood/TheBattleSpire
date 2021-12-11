@@ -87,15 +87,21 @@ void ATBS_GridSystem::GenerateStartRoom()
 	ATBS_Object* spawnPoint = GetWorld()->SpawnActor<ATBS_Object>(roomDataRows[startRoom.roomLevel]->room_Objects[0].room_object,
 		FVector(0, 0, 0), 
 		FRotator(0, 0, 0));
-	spawnPoint->AttachToHex(startRoom.hexes[middleTileNum]);
+	spawnPoint->AttachToHex(startRoom.hexes[middleTileNum], true);
 
 	// set hexes around to spawn points
-	if(startRoom.hexes[middleTileNum]->GetHexDirection(TEast, 1).IsValidIndex(0))startRoom.hexes[middleTileNum]->GetHexDirection(TEast, 1)[0]->Tags.Add("Spawn");
-	if(startRoom.hexes[middleTileNum]->GetHexDirection(TNorthEast, 1).IsValidIndex(0))startRoom.hexes[middleTileNum]->GetHexDirection(TNorthEast, 1)[0]->Tags.Add("Spawn");
-	if (startRoom.hexes[middleTileNum]->GetHexDirection(TNorthWest, 1).IsValidIndex(0))startRoom.hexes[middleTileNum]->GetHexDirection(TNorthWest, 1)[0]->Tags.Add("Spawn");
-	if (startRoom.hexes[middleTileNum]->GetHexDirection(TWest, 1).IsValidIndex(0))startRoom.hexes[middleTileNum]->GetHexDirection(TWest, 1)[0]->Tags.Add("Spawn");
-	if (startRoom.hexes[middleTileNum]->GetHexDirection(TSouthEast, 1).IsValidIndex(0))startRoom.hexes[middleTileNum]->GetHexDirection(TSouthEast, 1)[0]->Tags.Add("Spawn");
-	if (startRoom.hexes[middleTileNum]->GetHexDirection(TSouthWest, 1).IsValidIndex(0))startRoom.hexes[middleTileNum]->GetHexDirection(TSouthWest, 1)[0]->Tags.Add("Spawn");
+	ATBS_Hex* neighbour = startRoom.hexes[middleTileNum]->GetHexNeighbour(TEast);
+	if (neighbour) neighbour->Tags.Add("Spawn");
+	neighbour = startRoom.hexes[middleTileNum]->GetHexNeighbour(TNorthEast);
+	if (neighbour) neighbour->Tags.Add("Spawn");
+	neighbour = startRoom.hexes[middleTileNum]->GetHexNeighbour(TNorthWest);
+	if (neighbour) neighbour->Tags.Add("Spawn");
+	neighbour = startRoom.hexes[middleTileNum]->GetHexNeighbour(TWest);
+	if (neighbour) neighbour->Tags.Add("Spawn");
+	neighbour = startRoom.hexes[middleTileNum]->GetHexNeighbour(TSouthEast);
+	if (neighbour) neighbour->Tags.Add("Spawn");
+	neighbour = startRoom.hexes[middleTileNum]->GetHexNeighbour(TSouthWest);
+	if (neighbour) neighbour->Tags.Add("Spawn");
 
 	// Add room to array and update room counter
 	Rooms.Add(startRoom);
@@ -113,10 +119,10 @@ void ATBS_GridSystem::GenerateNextRoom(TEnumAsByte<RoomDirection> direction, int
 	{
 		ATBS_Door* door = Cast<ATBS_Door>(Actor);
 		door->DeactivateDoor();
-		if (direction == RNorth && door->Tags.Contains("N")) door->Destroy();
-		if (direction == REast && door->Tags.Contains("E")) door->Destroy();
-		if (direction == RSouth && door->Tags.Contains("S")) door->Destroy();
-		if (direction == RWest && door->Tags.Contains("W")) door->Destroy();
+		if (direction == RNorth && door->Tags.Contains("N")) door->Despawn();
+		if (direction == REast && door->Tags.Contains("E")) door->Despawn();
+		if (direction == RSouth && door->Tags.Contains("S")) door->Despawn();
+		if (direction == RWest && door->Tags.Contains("W")) door->Despawn();
 	}
 
 	// create new room
@@ -318,12 +324,12 @@ void ATBS_GridSystem::GenerateWallsAndDoors(struct FRoomStruct& room)
 		ATBS_Hex* hex = Cast<ATBS_Hex>(Actor);
 		if (hex && hex->GetGridRoom() == currentRoomCount)
 		{
-			bool bHasHexNW = hex->GetHexDirection(TNorthWest, 1).IsValidIndex(0);
-			bool bHasHexNE = hex->GetHexDirection(TNorthEast, 1).IsValidIndex(0);
-			bool bHasHexE = hex->GetHexDirection(TEast, 1).IsValidIndex(0);
-			bool bHasHexSE = hex->GetHexDirection(TSouthEast, 1).IsValidIndex(0);
-			bool bHasHexSW = hex->GetHexDirection(TSouthWest, 1).IsValidIndex(0);
-			bool bHasHexW = hex->GetHexDirection(TWest, 1).IsValidIndex(0);
+			bool bHasHexNW = IsValid(hex->GetHexNeighbour(TNorthWest));
+			bool bHasHexNE = IsValid(hex->GetHexNeighbour(TNorthEast));
+			bool bHasHexE = IsValid(hex->GetHexNeighbour(TEast));
+			bool bHasHexSE = IsValid(hex->GetHexNeighbour(TSouthEast));
+			bool bHasHexSW = IsValid(hex->GetHexNeighbour(TSouthWest));
+			bool bHasHexW = IsValid(hex->GetHexNeighbour(TWest));
 			// check for door, ensure the entrance wall does not have a door added
 			// door is added if hex pos is within the range found above
 			if ((room.entrance != RNorth && hex->Tags.Contains("N") && room.roomNorthDoorRange.X <= hex->GetGridLocation().X && hex->GetGridLocation().X <= room.roomNorthDoorRange.Y) ||
@@ -336,7 +342,7 @@ void ATBS_GridSystem::GenerateWallsAndDoors(struct FRoomStruct& room)
 				ATBS_Door* newDoor = GetWorld()->SpawnActor<ATBS_Door>(GetRandObject(roomDataRows[hex->GetRoomLevel()]->room_Doors),
 					location,
 					rotation);
-				newDoor->AttachToHex(hex);
+				newDoor->AttachToHex(hex, true);
 				newDoor->Tags = hex->Tags;
 			}
 			// hex is not a door - spawn wall
@@ -351,7 +357,7 @@ void ATBS_GridSystem::GenerateWallsAndDoors(struct FRoomStruct& room)
 					FRotator rotation = FRotator(0, 0, 0);
 					ATBS_Wall* newWall;
 					newWall = GetWorld()->SpawnActor<ATBS_Wall>(GetRandObject(roomDataRows[hex->GetRoomLevel()]->room_FullWalls), location, rotation);
-					newWall->AttachToHex(hex);
+					newWall->AttachToHex(hex, true);
 				}				
 			}
 		}
@@ -388,7 +394,7 @@ void ATBS_GridSystem::GenerateInterior(FRoomStruct& room)
 			{
 				randHex = room.hexes[FMath::FRandRange(0, room.hexes.Num() - 1)];
 			}
-			newObject->AttachToHex(randHex);
+			newObject->AttachToHex(randHex, true);
 		}
 		spawnedCountLeft--;
 	}

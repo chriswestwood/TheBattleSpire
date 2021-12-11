@@ -5,7 +5,7 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
 #include "TBS_Object.generated.h"
-
+class ATBS_UnitPawn;
 class ATBS_Hex;
 
 UCLASS()
@@ -21,13 +21,14 @@ public:
 	virtual void Tick(float DeltaTime) override;
 	
 	// player interaction
-	virtual bool Action(ATBS_Object* pawn); // returns bool to signify success to controller
+	virtual bool Action(ATBS_UnitPawn* pawn);
 	virtual void ShowInformation(); // shows the selection info on HUD
 	virtual void Select();
 	virtual void Deselect();
 	// Hex functions
-	void AttachToHex(ATBS_Hex* hex);
+	void AttachToHex(ATBS_Hex* hex, bool MoveTo = false);
 	ATBS_Hex* GetHex();
+	void DetachFromHex();
 
 	// Spawn functions
 	void Despawn();

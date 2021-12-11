@@ -4,6 +4,7 @@
 
 #include "Engine/DataTable.h"
 #include "EnemyListStruct.generated.h"
+class ATBS_EnemyPawn;
 
 USTRUCT(BlueprintType)
 struct FEnemyPercentage
@@ -12,10 +13,10 @@ struct FEnemyPercentage
 
 public:
     FEnemyPercentage() {}
-    //UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Type)
-    //TSubclassOf<ATBS_Hex> room_hex;
-    //UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Type)
-    //    float percentage;
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Type)
+    TSubclassOf<ATBS_EnemyPawn> enemy_Pawn;
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Type)
+        float percentage;
 };
 
 
@@ -30,5 +31,13 @@ public:
 
 	FEnemyListStruct()
 	{}
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Type)
+        TArray<FEnemyPercentage> Enemy;
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Type)
+        int level;
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Type)
+        int count;
+
 	
 };

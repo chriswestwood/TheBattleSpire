@@ -2,12 +2,21 @@
 
 
 #include "TBS_CharacterPawn.h"
+#include "Components/SpotLightComponent.h"
 
 // Sets default values
 ATBS_CharacterPawn::ATBS_CharacterPawn()
 {
  	// Set this pawn to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
+	if (!spotLight)
+	{
+		spotLight = CreateDefaultSubobject<USpotLightComponent>(TEXT("SpotLight"));
+		spotLight->SetRelativeLocation(FVector(-140, 0, 230));
+		spotLight->SetRelativeRotation(FRotator(-45, 0, 0));
+		spotLight->Intensity = 5000.0f;
+		spotLight->AttachToComponent(RootComponent, FAttachmentTransformRules::KeepRelativeTransform);
+	}
 
 }
 

@@ -5,7 +5,7 @@
 #include "CoreMinimal.h"
 #include "TBS_Object.h"
 #include "TBS_Door.generated.h"
-class ATBS_Object;
+class ATBS_UnitPawn;
 
 /**
  * 
@@ -17,7 +17,7 @@ class THEBATTLESPIRE_API ATBS_Door : public ATBS_Object
 	
 public:
 	ATBS_Door();
-	bool Action(ATBS_Object* pawn) override;
+	bool Action(ATBS_UnitPawn* pawn) override;
 
 	void DeactivateDoor();
 

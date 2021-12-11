@@ -3,6 +3,7 @@
 
 #include "TBS_Hex.h"
 #include "TBS_Object.h"
+#include "DrawDebugHelpers.h"
 #include "Components/SphereComponent.h"
 
 // Sets default values
@@ -38,6 +39,7 @@ ATBS_Hex::ATBS_Hex()
 	{
 		RootComponent = CreateDefaultSubobject<USceneComponent>(TEXT("HexSceneComponent"));
 	}
+	bisActive = true;
 }
 
 // Called when the game starts or when spawned
@@ -65,7 +67,6 @@ void ATBS_Hex::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 	floatTimeline.TickTimeline(DeltaTime);
-
 }
 
 void ATBS_Hex::SetGridLocation(FIntPoint newGridLoc)
@@ -103,44 +104,130 @@ const int ATBS_Hex::GetRoomLevel()
 	return currentRoomLevel;
 }
 
-TArray<ATBS_Hex*> ATBS_Hex::GetHexDirection(TEnumAsByte<TileDirection> direction, int count)
+TArray<ATBS_Hex*> ATBS_Hex::GetHexesDirection(FVector toward, int count, bool bOccupantBlock)
 {
 	TArray<ATBS_Hex*> hexes;
-
-	// line trace based on direction
-	FHitResult Hit;
-	FVector endLoc = GetActorLocation();
-	// set the end location based on the direction
-	if (direction == TileDirection::TNorthWest) { endLoc.X += 130; endLoc.Y += 225; }
-	if (direction == TileDirection::TNorthEast) { endLoc.X -= 130; endLoc.Y += 225;	}
-	if (direction == TileDirection::TEast) endLoc.X -= 260;
-	if (direction == TileDirection::TSouthEast) { endLoc.X -= 130; endLoc.Y -= 225; }
-	if (direction == TileDirection::TSouthWest) { endLoc.X += 130; endLoc.Y -= 225; }
-	if (direction == TileDirection::TWest) endLoc.X += 260;
-
-	// add this to the collision params so it does not hit itself
-	FCollisionQueryParams CollisionParams;
-	CollisionParams.AddIgnoredActor(this);
-
-	// get line trace to the next hex
-	if (GetWorld()->LineTraceSingleByChannel(Hit, GetActorLocation(), endLoc, ECollisionChannel::ECC_GameTraceChannel2, CollisionParams))
+	FVector VectorAngle = toward - GetActorLocation();
+	float angle = FMath::Atan2(VectorAngle.X, VectorAngle.Y) + 180;
+	TEnumAsByte<TileDirection> direction;
+	if (angle < 60) direction = TNorthEast;
+	else if (angle < 120) direction = TEast;
+	else if (angle < 180) direction = TSouthWest;
+	else if (angle < 240) direction = TSouthWest;
+	else if (angle < 300) direction = TWest;
+	else direction = TNorthWest;
+	bool bEnd = false;
+	while (!bEnd || hexes.Num() != count)
 	{
-		ATBS_Hex* nHex = Cast<ATBS_Hex>(Hit.GetActor()); // cast to hex
-		if (nHex) // if valid
+		// get line trace to the next hex
+		ATBS_Hex* nHex;
+		if(hexes.Num() > 0) nHex = hexes.Last()->GetHexNeighbour(direction);
+		else nHex = GetHexNeighbour(direction);
+		if (nHex)
 		{
-			// call that hex get neighbour if we want more
-			// add the hex to the output
-			if(count > 1) hexes = nHex->GetHexDirection(direction, count - 1);
-			hexes.Add(nHex);
+				if (bOccupantBlock && nHex->isOccupied())
+				{
+					bEnd = true;
+				}
+				else
+				{
+					hexes.Add(nHex);
+				}
 		}
+		else bEnd = true;
 	}
 	// return hex tiles if found
 	return hexes;
 }
 
-TArray<ATBS_Hex*> ATBS_Hex::GetHexRadius(int size)
+TArray<ATBS_Hex*> ATBS_Hex::GetHexesRadius(int size, bool bOccupantBlock)
 {
 	return TArray<ATBS_Hex*>();
+	// spheretracebychannel
+}
+
+TArray<ATBS_Hex*> ATBS_Hex::GetHexesPath(FVector endLoc,int count, bool bOccupantBlock)
+{
+	TArray<ATBS_Hex*> hexes;
+	FHitResult Hit;
+	hexes.Empty();
+	// add this to the collision params so it does not hit itself
+	FCollisionQueryParams CollisionParams;
+	CollisionParams.AddIgnoredActor(this);
+	bool bEnd = false;
+	FVector startLoc = GetActorLocation();
+	while (!bEnd || hexes.Num() != count)
+	{
+		// get line trace to the next hex
+		if (GetWorld()->LineTraceSingleByChannel(Hit, startLoc, endLoc, ECollisionChannel::ECC_GameTraceChannel2, CollisionParams))
+		{
+			ATBS_Hex* nHex = Cast<ATBS_Hex>(Hit.GetActor()); // cast to hex
+			if (nHex)
+			{
+				if (nHex->isActive())
+				{
+					if (bOccupantBlock && nHex->isOccupied())
+					{
+						bEnd = true;
+					}
+					else
+					{
+						hexes.Add(nHex);
+						CollisionParams.AddIgnoredActor(nHex);
+						startLoc = nHex->GetActorLocation();
+						//TEST
+						DrawDebugLine(GetWorld(), nHex->GetActorLocation(), nHex->GetActorLocation() + FVector(0, 0, 100), FColor::Red, false, 1);
+						//TEST
+					}
+				}
+				else bEnd = true;
+			}
+			else bEnd = true;
+		}
+		else bEnd = true;
+	}
+	return hexes;
+}
+
+bool ATBS_Hex::isHexInRange(ATBS_Hex* hex, int range)
+{
+	FVector distance = GetActorLocation() - hex->GetActorLocation();
+	if (distance.Size() <= range * 260) return true;
+	return false;
+}
+
+ATBS_Hex* ATBS_Hex::GetHexNeighbour(TileDirection direction)
+{
+	// line trace based on direction
+	FHitResult Hit;
+	FCollisionQueryParams CollisionParams;
+	CollisionParams.AddIgnoredActor(this);
+	FVector endLoc = GetActorLocation();
+	FVector startLoc = GetActorLocation();
+	// set the end location based on the direction
+	if (direction == TileDirection::TNorthWest) { endLoc.X += 130; endLoc.Y += 225; }
+	if (direction == TileDirection::TNorthEast) { endLoc.X -= 130; endLoc.Y += 225; }
+	if (direction == TileDirection::TEast) endLoc.X -= 260;
+	if (direction == TileDirection::TSouthEast) { endLoc.X -= 130; endLoc.Y -= 225; }
+	if (direction == TileDirection::TSouthWest) { endLoc.X += 130; endLoc.Y -= 225; }
+	if (direction == TileDirection::TWest) endLoc.X += 260;
+	// get line trace to the next hex
+	if (GetWorld()->LineTraceSingleByChannel(Hit, startLoc, endLoc, ECollisionChannel::ECC_GameTraceChannel2, CollisionParams))
+	{
+		ATBS_Hex* nHex = Cast<ATBS_Hex>(Hit.GetActor()); // cast to hex
+		if (nHex)
+		{
+			if (nHex->isActive())
+			{
+				//TEST
+				DrawDebugLine(GetWorld(), nHex->GetActorLocation(), nHex->GetActorLocation() + FVector(0, 0, 100), FColor::Red, false, 1);
+				//TEST
+				return nHex;
+			}
+		}
+	}	
+	// return hex tiles if found
+	return nullptr;
 }
 
 USceneComponent* ATBS_Hex::GetOccupantComponent()
@@ -170,6 +257,11 @@ void ATBS_Hex::SetDecoration(ATBS_Object* newDec)
 		FAttachmentTransformRules::KeepRelativeTransform);
 }
 
+bool ATBS_Hex::isActive()
+{
+	return bisActive;
+}
+
 void ATBS_Hex::Spawn()
 {
 	floatTimeline.PlayFromStart();
@@ -190,6 +282,7 @@ void ATBS_Hex::Despawn()
 	if (GetLifeSpan() != 0) return;
 	if (occupant) occupant->Despawn();
 	if (decoration) decoration->Despawn();
+	bisActive = false;
 	hexCollisionComp->SetCollisionResponseToChannel(ECollisionChannel::ECC_GameTraceChannel1, ECollisionResponse::ECR_Ignore);
 	floatTimeline.ReverseFromEnd();
 	SetLifeSpan(5);

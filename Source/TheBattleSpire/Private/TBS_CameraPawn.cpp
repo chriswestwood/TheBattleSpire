@@ -5,7 +5,9 @@
 #include "GameFramework/SpringArmComponent.h"
 #include "Camera/CameraComponent.h"
 #include "Particles/ParticleSystemComponent.h"
+#include "Components/PointLightComponent.h"
 #include "TBS_Hex.h"
+#include "TBS_PlayerController.h"
 #include "Kismet/KismetMathLibrary.h"
 
 // Sets default values
@@ -37,13 +39,17 @@ ATBS_CameraPawn::ATBS_CameraPawn()
 		hoverParticleComp = CreateDefaultSubobject<UParticleSystemComponent>(TEXT("HoverParticle"));
 		hoverParticleComp->SetupAttachment(RootComponent);
 		UParticleSystem* defaultParticleSystem;
-		static ConstructorHelpers::FObjectFinder<UParticleSystem> ParticleClass(TEXT("ParticleSystem'/Game/Blueprints/Player/DefaultHoverParticle.DefaultHoverParticle'"));
+		static ConstructorHelpers::FObjectFinder<UParticleSystem> ParticleClass(TEXT("ParticleSystem'/Game/Blueprints/Player/Particles/DefaultHoverParticle.DefaultHoverParticle'"));
 		if (ParticleClass.Object)
 		{
 			defaultParticleSystem = ParticleClass.Object;
 			hoverParticleComp->SetTemplate(defaultParticleSystem);
 		}
-		hoverParticleComp->Deactivate();
+	}
+	if (!handLight)
+	{
+		handLight = CreateDefaultSubobject<UPointLightComponent>(TEXT("PointLight"));
+		handLight->Intensity = 1000.0f;
 	}
 	// Create a camera
 	playerCamera = CreateDefaultSubobject<UCameraComponent>(TEXT("PlayerCamera"));
@@ -61,6 +67,7 @@ ATBS_CameraPawn::ATBS_CameraPawn()
 void ATBS_CameraPawn::BeginPlay()
 {
 	Super::BeginPlay();
+	hoverParticleComp->DeactivateSystem();
 	targetRotation = GetActorRotation();
 	if (rotateCurveFloat)
 	{
@@ -76,6 +83,8 @@ void ATBS_CameraPawn::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 	rotateTimeline.TickTimeline(DeltaTime);
+	ATBS_PlayerController* PC = Cast<ATBS_PlayerController>(GetController());
+	if(PC) handLight->SetWorldLocation(PC->mouseCoord);
 }
 
 void ATBS_CameraPawn::UpdateParticle(ATBS_Hex* hex)
@@ -85,7 +94,7 @@ void ATBS_CameraPawn::UpdateParticle(ATBS_Hex* hex)
 		if (hex->GetLifeSpan() == 0)
 		{
 			if (!hoverParticleComp->IsActive()) hoverParticleComp->Activate();
-			hoverParticleComp->AttachToComponent(hex->GetRootComponent(), FAttachmentTransformRules::SnapToTargetNotIncludingScale);
+			hoverParticleComp->AttachToComponent(hex->GetOccupantComp(), FAttachmentTransformRules::SnapToTargetNotIncludingScale);
 			// set particle type based on hex
 			return;
 		}

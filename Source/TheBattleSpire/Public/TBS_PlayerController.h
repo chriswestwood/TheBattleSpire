@@ -10,6 +10,17 @@ class ATBS_CharacterPawn;
 class ATBS_Object;
 class ATBS_Hex;
 class UParticleSystem;
+class UCard;
+
+UENUM()
+enum StateEnum
+{
+	StateSpawn		UMETA(DisplayName = "Spawn"),
+	StateSelect		UMETA(DisplayName = "Select"),
+	StateAbility	UMETA(DisplayName = "Ability"),
+	StateExplore	UMETA(DisplayName = "Explore")
+};
+
 /**
  * 
  */
@@ -32,18 +43,34 @@ public:
 		virtual void SetupInputComponent() override;
 
 		//Updates
-		void UpdateHoverHex(ATBS_Hex* hex);
+		bool UpdateHoverHex(ATBS_Hex* hex);
+		void ChangeActionState();
+		bool CheckForEnemies();
 
+		UPROPERTY()
+			FVector mouseCoord;
 protected:
 
 	UPROPERTY()
+	TArray<ATBS_CharacterPawn*> characters;
+	UPROPERTY()
 	ATBS_CharacterPawn* selectedPawn;
 	UPROPERTY()
-	ATBS_Hex* selectedHex;
+	TArray<ATBS_Hex*> currentActionHexes;
+	UPROPERTY()
+	TArray<ATBS_Hex*> hoverActionHexes;
+	UPROPERTY()
+	UCard* selectedCard;
 	UPROPERTY()
 	ATBS_Hex* hoverHex;
 	UPROPERTY()
 	UParticleSystem* hoverParticle;
+	UPROPERTY()
+	TEnumAsByte<StateEnum> currentState;
+
+	UPROPERTY()
+		bool bGameStart;
+
 
 };
 

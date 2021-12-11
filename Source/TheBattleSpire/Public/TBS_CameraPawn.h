@@ -54,6 +54,8 @@ public:
 	// Particle system for highlighted hex
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Particle, meta = (AllowPrivateAccess = "true"))
 		class UParticleSystemComponent* hoverParticleComp;
+	UPROPERTY(VisibleDefaultsOnly, Category = Pawn)
+		class UPointLightComponent* handLight;
 
 	//player movement
 	float moveSpeed; //camera movement speed

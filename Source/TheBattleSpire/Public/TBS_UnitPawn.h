@@ -17,6 +17,8 @@ public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
+	bool MoveToHex(ATBS_Hex* moveHex);
+
 
 protected:
 	// Called when the game starts or when spawned

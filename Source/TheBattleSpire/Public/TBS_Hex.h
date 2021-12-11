@@ -31,9 +31,16 @@ public:
 	void SetRoomLevel(int newL);
 	const int GetRoomLevel();
 
+	// Components
+	FORCEINLINE class UStaticMeshComponent* GetHexComp() const { return hexMeshComp; }
+	FORCEINLINE class USceneComponent* GetOccupantComp() const { return occupantSceneComp; }
+
 	// Neighbour functions
-	TArray<ATBS_Hex*> GetHexDirection(TEnumAsByte<TileDirection> direction, int count);
-	TArray<ATBS_Hex*> GetHexRadius(int size);
+	TArray<ATBS_Hex*> GetHexesDirection(FVector toward, int count, bool bOccupantBlock = false);
+	ATBS_Hex* GetHexNeighbour(TileDirection direction);
+	TArray<ATBS_Hex*> GetHexesRadius(int size, bool bOccupantBlock = false);
+	TArray<ATBS_Hex*> GetHexesPath(FVector endLoc, int count, bool bOccupantBlock = false);
+	bool isHexInRange(ATBS_Hex* hex, int range);
 
 	// Occupant functions
 	USceneComponent* GetOccupantComponent();
@@ -41,7 +48,7 @@ public:
 	bool isOccupied();
 	void SetOccupant(ATBS_Object* newOcc);
 	void SetDecoration(ATBS_Object* newDec);
-
+	bool isActive();
 	// Called on creation to lift tile
 	void Spawn();
 	// timeline function
@@ -90,6 +97,9 @@ protected:
 	FVector startLocation; // starting location (0,0,-1000)
 	UPROPERTY()
 	FVector targetLocation; // target for the timeline move
+
+	UPROPERTY()
+	bool bisActive;
 
 
 };

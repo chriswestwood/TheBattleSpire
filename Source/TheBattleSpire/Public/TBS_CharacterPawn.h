@@ -14,13 +14,14 @@ class THEBATTLESPIRE_API ATBS_CharacterPawn : public ATBS_UnitPawn
 public:
 	// Sets default values for this pawn's properties
 	ATBS_CharacterPawn();
-
+	// Called every frame
+	virtual void Tick(float DeltaTime) override;
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
-public:	
-	// Called every frame
-	virtual void Tick(float DeltaTime) override;
+	UPROPERTY(VisibleDefaultsOnly, Category = Pawn)
+	class USpotLightComponent* spotLight;
+
 
 };
