@@ -26,4 +26,8 @@ public:
 protected:
 
 	ATBS_GridSystem* gridSystem;
+
+	bool bIsPlayerTurn;
+
+	bool bCanAction;
 };

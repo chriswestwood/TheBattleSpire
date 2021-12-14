@@ -14,7 +14,8 @@ ATBS_Object::ATBS_Object()
 	if (!BaseMeshComp)
 	{
 		BaseMeshComp = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("StaticMesh"));
-		BaseMeshComp->AttachToComponent(RootComponent, FAttachmentTransformRules::KeepRelativeTransform);
+		RootComponent = BaseMeshComp;
+		//BaseMeshComp->AttachToComponent(RootComponent, FAttachmentTransformRules::KeepRelativeTransform);
 		BaseMeshComp->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
 		BaseMeshComp->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
 		BaseMeshComp->SetCollisionResponseToChannel(ECollisionChannel::ECC_GameTraceChannel1, ECollisionResponse::ECR_Block);

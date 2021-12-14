@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/PlayerController.h"
+#include "EnumRoom.h"
 #include "TBS_PlayerController.generated.h"
 
 class ATBS_CharacterPawn;
@@ -38,6 +39,7 @@ public:
 		// Input
 		void ClickSelect();
 		void ClickAction();
+		void ReleaseAction();
 
 		// Called to bind functionality to input
 		virtual void SetupInputComponent() override;
@@ -56,7 +58,7 @@ protected:
 	UPROPERTY()
 	ATBS_CharacterPawn* selectedPawn;
 	UPROPERTY()
-	TArray<ATBS_Hex*> currentActionHexes;
+	TArray<ATBS_Hex*> ActionHexes;
 	UPROPERTY()
 	TArray<ATBS_Hex*> hoverActionHexes;
 	UPROPERTY()
@@ -67,7 +69,8 @@ protected:
 	UParticleSystem* hoverParticle;
 	UPROPERTY()
 	TEnumAsByte<StateEnum> currentState;
-
+	UPROPERTY()
+	TEnumAsByte<TileDirection> hoverDirection;
 	UPROPERTY()
 		bool bGameStart;
 

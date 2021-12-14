@@ -107,15 +107,16 @@ const int ATBS_Hex::GetRoomLevel()
 TArray<ATBS_Hex*> ATBS_Hex::GetHexesDirection(FVector toward, int count, bool bOccupantBlock)
 {
 	TArray<ATBS_Hex*> hexes;
-	FVector VectorAngle = toward - GetActorLocation();
-	float angle = FMath::Atan2(VectorAngle.X, VectorAngle.Y) + 180;
+	FVector vectorAngle = toward - GetActorLocation();
+	float angle = FMath::RadiansToDegrees(FMath::Atan2(vectorAngle.Y, vectorAngle.X));
+	if (angle < 0) angle += 360;
 	TEnumAsByte<TileDirection> direction;
-	if (angle < 60) direction = TNorthEast;
-	else if (angle < 120) direction = TEast;
-	else if (angle < 180) direction = TSouthWest;
-	else if (angle < 240) direction = TSouthWest;
-	else if (angle < 300) direction = TWest;
-	else direction = TNorthWest;
+	if (angle < 30 || angle > 330) direction = TWest;
+	else if (angle < 90) direction = TNorthWest;
+	else if (angle < 150) direction = TNorthEast;
+	else if (angle < 210) direction = TEast;
+	else if (angle < 270) direction = TSouthEast;
+	else direction = TSouthWest;
 	bool bEnd = false;
 	while (!bEnd || hexes.Num() != count)
 	{
@@ -175,9 +176,6 @@ TArray<ATBS_Hex*> ATBS_Hex::GetHexesPath(FVector endLoc,int count, bool bOccupan
 						hexes.Add(nHex);
 						CollisionParams.AddIgnoredActor(nHex);
 						startLoc = nHex->GetActorLocation();
-						//TEST
-						DrawDebugLine(GetWorld(), nHex->GetActorLocation(), nHex->GetActorLocation() + FVector(0, 0, 100), FColor::Red, false, 1);
-						//TEST
 					}
 				}
 				else bEnd = true;
@@ -219,9 +217,6 @@ ATBS_Hex* ATBS_Hex::GetHexNeighbour(TileDirection direction)
 		{
 			if (nHex->isActive())
 			{
-				//TEST
-				DrawDebugLine(GetWorld(), nHex->GetActorLocation(), nHex->GetActorLocation() + FVector(0, 0, 100), FColor::Red, false, 1);
-				//TEST
 				return nHex;
 			}
 		}

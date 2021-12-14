@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "TBS_Object.h"
+#include "EnumRoom.h"
 #include "TBS_UnitPawn.generated.h"
 
 UCLASS()
@@ -17,8 +18,9 @@ public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
-	bool MoveToHex(ATBS_Hex* moveHex);
-
+	bool MoveToHex(ATBS_Hex* moveHex, TEnumAsByte<TileDirection> newDirection = TWest);
+	TEnumAsByte<TileDirection> GetDirection();
+	void SetDirection(TEnumAsByte<TileDirection> newDir);
 
 protected:
 	// Called when the game starts or when spawned
@@ -28,5 +30,8 @@ protected:
 	// Unit
 	UPROPERTY(VisibleDefaultsOnly, Category = Pawn)
 	class UStaticMeshComponent* UnitMeshComp;
+
+	UPROPERTY()
+		TEnumAsByte<TileDirection> direction;
 
 };

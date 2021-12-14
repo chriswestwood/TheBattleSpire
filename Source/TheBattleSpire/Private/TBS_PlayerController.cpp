@@ -36,7 +36,7 @@ void ATBS_PlayerController::PlayerTick(float DeltaTime)
 		{
 			mouseCoord = Hit.Location;
 			ATBS_Object* traceObject = Cast<ATBS_Object>(Hit.Actor);
-			if (traceObject)
+			if (IsValid(traceObject))
 			{
 				traceHex = traceObject->GetHex();
 			}
@@ -45,16 +45,31 @@ void ATBS_PlayerController::PlayerTick(float DeltaTime)
 				traceHex = Cast<ATBS_Hex>(Hit.Actor);
 			}
 		}
+		// update rotation if the selected hex are valid
+		if (ActionHexes.IsValidIndex(0))
+		{
+			FVector vectorAngle = Hit.Location - ActionHexes.Last()->GetActorLocation();
+			float angle = FMath::RadiansToDegrees(FMath::Atan2(vectorAngle.Y, vectorAngle.X));
+			if (angle < 0) angle += 360;
+			if (angle < 30 || angle > 330) hoverDirection = TWest;
+			else if (angle < 90) hoverDirection = TNorthWest;
+			else if (angle < 150) hoverDirection = TNorthEast;
+			else if (angle < 210) hoverDirection = TEast;
+			else if (angle < 270) hoverDirection = TSouthEast;
+			else hoverDirection = TSouthWest;
+			Cast<ATBS_CameraPawn>(GetPawn())->UpdateRotation(hoverDirection);
+		}
 	}
+	
 	if(!UpdateHoverHex(traceHex)) return;
 	// update HUD with selected hexes info
 	// HUD->UpdateSelected(hoverHex)
 
 	hoverActionHexes.Empty();
 	// if a character pawn is selected (and on action) draw path towards hoverHex
-	if (hoverHex && selectedPawn && currentState == StateAbility)
+	if (IsValid(hoverHex) && IsValid(selectedPawn) && currentState == StateAbility)
 	{
-		if (!selectedCard) return;
+		if (!IsValid(selectedCard)) return;
 		if (selectedCard->selection == SDirection)
 		{
 			hoverActionHexes = selectedPawn->GetHex()->GetHexesDirection(hoverHex->GetActorLocation(), selectedCard->range);
@@ -94,13 +109,13 @@ void ATBS_PlayerController::ClickSelect()
 
 
 	// check if selected hex
-	if (!hoverHex) return;
+	if (!IsValid(hoverHex)) return;
 	if (currentState == StateSpawn); // select has no feature before game start
 	else if (currentState == StateExplore || currentState == StateSelect)
 	{
 		// if explore or select state - check for player pawn and set to selected
 		ATBS_CharacterPawn* selectedChar = Cast<ATBS_CharacterPawn>(hoverHex->GetOccupant());
-		if (selectedChar)selectedPawn = selectedChar;
+		if (IsValid(selectedChar))selectedPawn = selectedChar;
 		// update the HUD to show new selected hex/player pawn
 
 	}
@@ -114,21 +129,20 @@ void ATBS_PlayerController::ClickSelect()
 
 void ATBS_PlayerController::ClickAction()
 {
-	if (!hoverHex) return;
+	if (!IsValid(hoverHex)) return;
 	ATBS_Object* clickObject = hoverHex->GetOccupant();
 	if (currentState == StateSpawn)
 	{
-		if (hoverHex->ActorHasTag("Spawn") && !clickObject)
+		ActionHexes.Empty();
+		if (hoverHex->ActorHasTag("Spawn") && !IsValid(clickObject))
 		{
-			UTBS_GameInstance* GI = Cast<UTBS_GameInstance>(GetGameInstance());
-			ATBS_CharacterPawn* newCharacter = GetWorld()->SpawnActor<ATBS_CharacterPawn>(GI->GetCharacter(characters.Num())->characterClass,FVector(0,0,0), FRotator(0,0,0));
-			characters.Add(newCharacter);
-			newCharacter->MoveToHex(hoverHex);
+			ActionHexes.Add(hoverHex);
+			Cast<ATBS_CameraPawn>(GetPawn())->MoveRotation(hoverHex);
 		}
 	}
 	if (currentState == StateSelect)
 	{
-		if (selectedPawn)
+		/*if (selectedPawn)
 		{
 			if (clickObject)
 			{
@@ -141,25 +155,48 @@ void ATBS_PlayerController::ClickAction()
 			{
 				selectedPawn->MoveToHex(hoverHex);
 			}
-		}
+		}*/
 	}
 	if (currentState == StateAbility)
 	{
-
+		ActionHexes = hoverActionHexes;
 	}
 	if (currentState == StateExplore)
 	{
-		if (!selectedPawn) return;
-		if (clickObject)
+		if (!IsValid(selectedPawn)) return;
+		if (IsValid(clickObject))
 		{
-
+			clickObject->Action(selectedPawn);
 		}
 		else
 		{
-			selectedPawn->MoveToHex(hoverHex);
+			ActionHexes.Empty();
+			ActionHexes.Add(hoverHex);
+			Cast<ATBS_CameraPawn>(GetPawn())->MoveRotation(hoverHex);
 		}
 	}
+}
+
+void ATBS_PlayerController::ReleaseAction()
+{
+	if (currentState == StateSpawn)
+	{
+		if (ActionHexes.IsValidIndex(0))
+		{
+			UTBS_GameInstance* GI = Cast<UTBS_GameInstance>(GetGameInstance());
+			ATBS_CharacterPawn* newCharacter = GetWorld()->SpawnActor<ATBS_CharacterPawn>(GI->GetCharacter(characters.Num())->characterClass, FVector(0, 0, 0), FRotator(0, 0, 0));
+			characters.Add(newCharacter);
+			newCharacter->MoveToHex(ActionHexes.Last(), hoverDirection);
+		}
+	}
+	if (currentState == StateExplore)
+	{
+		if(ActionHexes.IsValidIndex(0))	selectedPawn->MoveToHex(ActionHexes.Last(), hoverDirection);
+	}
+	
 	ChangeActionState();
+	ActionHexes.Empty();
+	Cast<ATBS_CameraPawn>(GetPawn())->DisableRotation();
 }
 
 // Called to bind functionality to input
@@ -170,7 +207,7 @@ void ATBS_PlayerController::SetupInputComponent()
 	// This is initialized on startup, you can go straight to binding
 	InputComponent->BindAction("Select", IE_Pressed, this, &ATBS_PlayerController::ClickSelect);
 	InputComponent->BindAction("Action", IE_Pressed, this, &ATBS_PlayerController::ClickAction);
-
+	InputComponent->BindAction("Action", IE_Released, this, &ATBS_PlayerController::ReleaseAction);
 }
 
 bool ATBS_PlayerController::UpdateHoverHex(ATBS_Hex* hex)
@@ -203,7 +240,10 @@ void ATBS_PlayerController::ChangeActionState()
 	// enemies exist on level
 	currentState = StateSelect;
 	// if we have selected a pawn and have selected a card - enter ability state
-	if (selectedCard && selectedPawn) currentState = StateAbility;
+	if (IsValid(selectedCard) && IsValid(selectedPawn))
+	{
+		currentState = StateAbility;
+	}
 }
 
 bool ATBS_PlayerController::CheckForEnemies()
@@ -211,7 +251,7 @@ bool ATBS_PlayerController::CheckForEnemies()
 	// return true if enemies are around
 	TArray<AActor*> FoundActors;
 	UGameplayStatics::GetAllActorsOfClass(GetWorld(), ATBS_EnemyPawn::StaticClass(), FoundActors);
-	if (FoundActors.Num() == 0) return true;
+	if (FoundActors.Num() > 0) return true;
 	//else return false
 	return false;
 }

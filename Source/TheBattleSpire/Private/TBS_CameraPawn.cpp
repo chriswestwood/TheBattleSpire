@@ -6,6 +6,7 @@
 #include "Camera/CameraComponent.h"
 #include "Particles/ParticleSystemComponent.h"
 #include "Components/PointLightComponent.h"
+#include "Components/StaticMeshComponent.h"
 #include "TBS_Hex.h"
 #include "TBS_PlayerController.h"
 #include "Kismet/KismetMathLibrary.h"
@@ -50,6 +51,13 @@ ATBS_CameraPawn::ATBS_CameraPawn()
 	{
 		handLight = CreateDefaultSubobject<UPointLightComponent>(TEXT("PointLight"));
 		handLight->Intensity = 1000.0f;
+	}
+	if (!rotationPlane)
+	{
+			rotationPlane = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("RotationPlane"));
+			static ConstructorHelpers::FObjectFinder<UStaticMesh>MeshAsset(TEXT("StaticMesh'/Game/Assets/Models/SM_Arrow.SM_Arrow'"));
+			if(MeshAsset.Object)rotationPlane->SetStaticMesh(MeshAsset.Object);
+			rotationPlane->SetVisibility(false);
 	}
 	// Create a camera
 	playerCamera = CreateDefaultSubobject<UCameraComponent>(TEXT("PlayerCamera"));
@@ -101,6 +109,27 @@ void ATBS_CameraPawn::UpdateParticle(ATBS_Hex* hex)
 	}
 	hoverParticleComp->Deactivate();
 
+}
+
+void ATBS_CameraPawn::MoveRotation(ATBS_Hex* hex)
+{
+	rotationPlane->SetVisibility(true);
+	rotationPlane->SetWorldLocation(hex->GetActorLocation() + FVector(0, 0, 100));
+}
+
+void ATBS_CameraPawn::DisableRotation()
+{
+	rotationPlane->SetVisibility(false);
+}
+
+void ATBS_CameraPawn::UpdateRotation(TEnumAsByte<TileDirection> direction)
+{
+	if (direction == TNorthEast) rotationPlane->SetWorldRotation(FRotator(0, 120, 0));
+	else if (direction == TEast) rotationPlane->SetWorldRotation(FRotator(0, 180, 0));
+	else if (direction == TSouthEast) rotationPlane->SetWorldRotation(FRotator(0, 240, 0));
+	else if (direction == TSouthWest) rotationPlane->SetWorldRotation(FRotator(0, 300, 0));
+	else if (direction == TWest) rotationPlane->SetWorldRotation(FRotator(0, 0, 0));
+	else if (direction == TNorthWest) rotationPlane->SetWorldRotation(FRotator(0, 60, 0));
 }
 
 // Called to bind functionality to input

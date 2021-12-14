@@ -25,6 +25,7 @@ ATBS_UnitPawn::ATBS_UnitPawn()
 		UnitMeshComp->AttachToComponent(RootComponent, FAttachmentTransformRules::KeepRelativeTransform);
 		UnitMeshComp->SetRelativeLocation(FVector(0, 0, 10));
 	}
+	SetDirection(TWest);
 }
 
 // Called when the game starts or when spawned
@@ -41,10 +42,27 @@ void ATBS_UnitPawn::Tick(float DeltaTime)
 
 }
 
-bool ATBS_UnitPawn::MoveToHex(ATBS_Hex* moveHex)
+bool ATBS_UnitPawn::MoveToHex(ATBS_Hex* moveHex, TEnumAsByte<TileDirection> newDirection)
 {
 	if (moveHex->GetOccupant()) return false;
 	AttachToHex(moveHex, true);
+	SetDirection(newDirection);
 	return true;
+}
+
+void ATBS_UnitPawn::SetDirection(TEnumAsByte<TileDirection> newDir)
+{
+	direction = newDir;
+	if (direction == TNorthEast) SetActorRotation(FRotator(0,120,0));
+	else if (direction == TEast) SetActorRotation(FRotator(0, 180, 0));
+	else if (direction == TSouthEast) SetActorRotation(FRotator(0, 240, 0));
+	else if (direction == TSouthWest) SetActorRotation(FRotator(0, 300, 0));
+	else if (direction == TWest) SetActorRotation(FRotator(0, 0, 0));
+	else if (direction == TNorthWest) SetActorRotation(FRotator(0, 60, 0));
+}
+
+TEnumAsByte<TileDirection> ATBS_UnitPawn::GetDirection()
+{
+	return direction;
 }
 

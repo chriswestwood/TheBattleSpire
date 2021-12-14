@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Pawn.h"
 #include "Components/TimelineComponent.h"
+#include "EnumRoom.h"
 #include "TBS_CameraPawn.generated.h"
 class ATBS_Hex;
 
@@ -33,6 +34,9 @@ public:
 	virtual void Tick(float DeltaTime) override;
 
 	void UpdateParticle(ATBS_Hex* hex);
+	void MoveRotation(ATBS_Hex* hex);
+	void DisableRotation();
+	void UpdateRotation(TEnumAsByte<TileDirection> direction);
 
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
@@ -56,6 +60,8 @@ public:
 		class UParticleSystemComponent* hoverParticleComp;
 	UPROPERTY(VisibleDefaultsOnly, Category = Pawn)
 		class UPointLightComponent* handLight;
+	UPROPERTY(VisibleDefaultsOnly, Category = Pawn)
+		class UStaticMeshComponent* rotationPlane;
 
 	//player movement
 	float moveSpeed; //camera movement speed
