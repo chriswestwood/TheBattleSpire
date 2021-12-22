@@ -34,37 +34,45 @@ public:
 	virtual void Tick(float DeltaTime) override;
 
 	void UpdateParticle(ATBS_Hex* hex);
-	void MoveRotation(ATBS_Hex* hex);
-	void DisableRotation();
-	void UpdateRotation(TEnumAsByte<TileDirection> direction);
+	void MoveRotationPlane(ATBS_Hex* hex);
+	void DisableRotationPlane();
+	void UpdateRotationPlane(TEnumAsByte<TileDirection> direction);
 
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 	// input actions
 	void MoveForward(float v);
 	void MoveRight(float v);
+	void MoveTo(FVector location);
+
 	void RotateClock();
 	void RotateAntiClock();
 
 	UFUNCTION()
 		void RotateProgress(float Value);
+	UFUNCTION()
+		void MoveProgress(float Value);
 
-	/** Camera boom positioning the camera above the map */
+	// COMPONENTS
+	// camera boom
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
 		class USpringArmComponent* cameraBoom;
-	/** player Camera */
+	// camera
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
 		class UCameraComponent* playerCamera;
 	// Particle system for highlighted hex
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Particle, meta = (AllowPrivateAccess = "true"))
 		class UParticleSystemComponent* hoverParticleComp;
+	// light
 	UPROPERTY(VisibleDefaultsOnly, Category = Pawn)
 		class UPointLightComponent* handLight;
+	// rotation plane
 	UPROPERTY(VisibleDefaultsOnly, Category = Pawn)
 		class UStaticMeshComponent* rotationPlane;
 
 	//player movement
-	float moveSpeed; //camera movement speed
+
+	// Rotation Timeline
 	float baseTurnRate; // camera turn speed
 	float rotateAmount; // amount to rotate per button press
 	UPROPERTY()
@@ -75,4 +83,15 @@ public:
 		FRotator startRotation;
 	UPROPERTY()
 		FRotator targetRotation; // target for the timeline rotation
+
+	// Move Timeline
+	float moveSpeed; //camera movement speed
+	UPROPERTY()
+		FTimeline moveTimeline;
+	UPROPERTY(EditAnywhere, Category = "Timeline")
+		class UCurveFloat* moveCurveFloat;
+	UPROPERTY()
+		FVector startLocation;
+	UPROPERTY()
+		FVector targetLocation; // target for the timeline move
 };

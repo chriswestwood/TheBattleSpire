@@ -40,6 +40,7 @@ public:
 		void ClickSelect();
 		void ClickAction();
 		void ReleaseAction();
+		void MoveCamera();
 
 		// Called to bind functionality to input
 		virtual void SetupInputComponent() override;

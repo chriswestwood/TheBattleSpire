@@ -57,7 +57,7 @@ void ATBS_PlayerController::PlayerTick(float DeltaTime)
 			else if (angle < 210) hoverDirection = TEast;
 			else if (angle < 270) hoverDirection = TSouthEast;
 			else hoverDirection = TSouthWest;
-			Cast<ATBS_CameraPawn>(GetPawn())->UpdateRotation(hoverDirection);
+			Cast<ATBS_CameraPawn>(GetPawn())->UpdateRotationPlane(hoverDirection);
 		}
 	}
 	
@@ -137,7 +137,7 @@ void ATBS_PlayerController::ClickAction()
 		if (hoverHex->ActorHasTag("Spawn") && !IsValid(clickObject))
 		{
 			ActionHexes.Add(hoverHex);
-			Cast<ATBS_CameraPawn>(GetPawn())->MoveRotation(hoverHex);
+			Cast<ATBS_CameraPawn>(GetPawn())->MoveRotationPlane(hoverHex);
 		}
 	}
 	if (currentState == StateSelect)
@@ -172,7 +172,7 @@ void ATBS_PlayerController::ClickAction()
 		{
 			ActionHexes.Empty();
 			ActionHexes.Add(hoverHex);
-			Cast<ATBS_CameraPawn>(GetPawn())->MoveRotation(hoverHex);
+			Cast<ATBS_CameraPawn>(GetPawn())->MoveRotationPlane(hoverHex);
 		}
 	}
 }
@@ -196,7 +196,19 @@ void ATBS_PlayerController::ReleaseAction()
 	
 	ChangeActionState();
 	ActionHexes.Empty();
-	Cast<ATBS_CameraPawn>(GetPawn())->DisableRotation();
+	Cast<ATBS_CameraPawn>(GetPawn())->DisableRotationPlane();
+}
+
+void ATBS_PlayerController::MoveCamera()
+{
+	FHitResult Hit;
+	GetHitResultUnderCursor(ECC_GameTraceChannel1, false, Hit);
+	if (Hit.bBlockingHit) {
+		if (Hit.Actor != NULL)
+		{
+			Cast<ATBS_CameraPawn>(GetPawn())->MoveTo(Hit.Location);
+		}
+	}
 }
 
 // Called to bind functionality to input
@@ -208,6 +220,7 @@ void ATBS_PlayerController::SetupInputComponent()
 	InputComponent->BindAction("Select", IE_Pressed, this, &ATBS_PlayerController::ClickSelect);
 	InputComponent->BindAction("Action", IE_Pressed, this, &ATBS_PlayerController::ClickAction);
 	InputComponent->BindAction("Action", IE_Released, this, &ATBS_PlayerController::ReleaseAction);
+	InputComponent->BindAction("MoveCamera", IE_DoubleClick, this, &ATBS_PlayerController::MoveCamera);
 }
 
 bool ATBS_PlayerController::UpdateHoverHex(ATBS_Hex* hex)

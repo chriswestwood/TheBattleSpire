@@ -2,6 +2,7 @@
 
 
 #include "TBS_UnitPawn.h"
+#include "TBS_StatBarComponent.h"
 #include "TBS_Hex.h"
 
 // Sets default values
@@ -24,6 +25,15 @@ ATBS_UnitPawn::ATBS_UnitPawn()
 		UnitMeshComp = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("UnitComponent"));
 		UnitMeshComp->AttachToComponent(RootComponent, FAttachmentTransformRules::KeepRelativeTransform);
 		UnitMeshComp->SetRelativeLocation(FVector(0, 0, 10));
+	}
+	if (!statusBar)
+	{
+		statusBar = CreateDefaultSubobject<UTBS_StatBarComponent>(TEXT("Statusbar"));
+		statusBar->AttachToComponent(RootComponent, FAttachmentTransformRules::KeepRelativeTransform);
+		statusBar->SetRelativeLocation(FVector(0, 0, 300));
+		statusBar->SetWidgetSpace(EWidgetSpace::Screen);
+		static ConstructorHelpers::FClassFinder<UUserWidget> WidgetClass(TEXT("/Game/Assets/UI/StatBarWidget"));
+		if (WidgetClass.Class) statusBar->SetWidgetClass(WidgetClass.Class);
 	}
 	SetDirection(TWest);
 }

@@ -6,6 +6,7 @@
 #include "TBS_Object.h"
 #include "EnumRoom.h"
 #include "TBS_UnitPawn.generated.h"
+class UTBS_StatBarComponent;
 
 UCLASS()
 class THEBATTLESPIRE_API ATBS_UnitPawn : public ATBS_Object
@@ -30,6 +31,8 @@ protected:
 	// Unit
 	UPROPERTY(VisibleDefaultsOnly, Category = Pawn)
 	class UStaticMeshComponent* UnitMeshComp;
+	UPROPERTY(VisibleDefaultsOnly, Category = Pawn)
+	class UTBS_StatBarComponent* statusBar;
 
 	UPROPERTY()
 		TEnumAsByte<TileDirection> direction;

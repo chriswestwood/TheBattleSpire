@@ -84,6 +84,14 @@ void ATBS_CameraPawn::BeginPlay()
 		rotateTimeline.AddInterpFloat(rotateCurveFloat, rotateProgress);
 		rotateTimeline.SetLooping(false);
 	}
+	targetLocation = GetActorLocation();
+	if (moveCurveFloat)
+	{
+		FOnTimelineFloat moveProgress;
+		moveProgress.BindUFunction(this, FName("MoveProgress"));
+		moveTimeline.AddInterpFloat(moveCurveFloat, moveProgress);
+		moveTimeline.SetLooping(false);
+	}
 }
 
 // Called every frame
@@ -91,6 +99,7 @@ void ATBS_CameraPawn::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 	rotateTimeline.TickTimeline(DeltaTime);
+	moveTimeline.TickTimeline(DeltaTime);
 	ATBS_PlayerController* PC = Cast<ATBS_PlayerController>(GetController());
 	if(PC) handLight->SetWorldLocation(PC->mouseCoord);
 }
@@ -111,18 +120,18 @@ void ATBS_CameraPawn::UpdateParticle(ATBS_Hex* hex)
 
 }
 
-void ATBS_CameraPawn::MoveRotation(ATBS_Hex* hex)
+void ATBS_CameraPawn::MoveRotationPlane(ATBS_Hex* hex)
 {
 	rotationPlane->SetVisibility(true);
 	rotationPlane->SetWorldLocation(hex->GetActorLocation() + FVector(0, 0, 100));
 }
 
-void ATBS_CameraPawn::DisableRotation()
+void ATBS_CameraPawn::DisableRotationPlane()
 {
 	rotationPlane->SetVisibility(false);
 }
 
-void ATBS_CameraPawn::UpdateRotation(TEnumAsByte<TileDirection> direction)
+void ATBS_CameraPawn::UpdateRotationPlane(TEnumAsByte<TileDirection> direction)
 {
 	if (direction == TNorthEast) rotationPlane->SetWorldRotation(FRotator(0, 120, 0));
 	else if (direction == TEast) rotationPlane->SetWorldRotation(FRotator(0, 180, 0));
@@ -146,19 +155,39 @@ void ATBS_CameraPawn::SetupPlayerInputComponent(UInputComponent* PlayerInputComp
 
 void ATBS_CameraPawn::MoveForward(float Value)
 {
-	if ((Controller != nullptr) && (Value != 0.0f))
+	//if ((Controller != nullptr) && (Value != 0.0f))
+	//{
+	//	FVector direction = UKismetMathLibrary::GetForwardVector(GetActorRotation());
+	//	AddActorWorldOffset(direction.operator*(Value * moveSpeed), false);
+	//}
+	if (moveCurveFloat && (Value != 0.0f))
 	{
 		FVector direction = UKismetMathLibrary::GetForwardVector(GetActorRotation());
-		AddActorWorldOffset(direction.operator*(Value * moveSpeed), false);
+		startLocation = RootComponent->GetRelativeLocation();
+		targetLocation += direction.operator*(Value * moveSpeed);
+		moveTimeline.PlayFromStart();
 	}
 }
 
 void ATBS_CameraPawn::MoveRight(float Value)
 {
-	if ((Controller != nullptr) && (Value != 0.0f))
+	if (moveCurveFloat && (Value != 0.0f))
 	{
 		FVector direction = UKismetMathLibrary::GetRightVector(GetActorRotation());
-		AddActorWorldOffset(direction.operator*(Value * moveSpeed), false);
+		startLocation = RootComponent->GetRelativeLocation();
+		targetLocation += direction.operator*(Value * moveSpeed);
+		moveTimeline.PlayFromStart();
+	}
+}
+
+void ATBS_CameraPawn::MoveTo(FVector location)
+{
+	if (moveCurveFloat)
+	{
+		startLocation = RootComponent->GetRelativeLocation();
+		targetLocation = location;
+		targetLocation.Z = 0;
+		moveTimeline.PlayFromStart();
 	}
 }
 
@@ -189,5 +218,11 @@ void ATBS_CameraPawn::RotateProgress(float Value)
 	FRotator newRotation = FMath::Lerp(startRotation, targetRotation, Value);
 	RootComponent->SetWorldRotation(newRotation, false);
 
+}
+
+void ATBS_CameraPawn::MoveProgress(float Value)
+{
+	FVector newLocation = FMath::Lerp(startLocation, targetLocation, Value);
+	RootComponent->SetWorldLocation(newLocation, false);
 }
 
