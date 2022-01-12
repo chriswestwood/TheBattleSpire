@@ -8,21 +8,27 @@ Each level is structured of square rooms, that consist of hexagon tiles. Rooms h
 
 ## Features
 
-- A room based dungeon generator, using hex tiles in a square grid formation.
+
 
 ![Rooms](/HexRoomGen.gif)
 
-- Player movement and rotation
+- A room based dungeon generator, using hex tiles in a square grid formation.
 
 ![Controls](/HexControls.gif)
 
-- Unit selection and tile movement
+- Player movement and rotation
 
-![Movement](/HexMove.gif)
+![Light](/HexLight.gif)
 
-- Health and protection information overhead
+- Light
 
 ![Health](/HexHealth.gif)
+
+- Health and protection information overhead
+ 
+![Movement](/HexEnviro.gif)
+
+- Pawn Movement
 
 ### TODO
 
