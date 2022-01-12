@@ -6,33 +6,59 @@ Levels are generated as you explore each room, ending with bosses and treasures.
 
 Each level is structured of square rooms, that consist of hexagon tiles. Rooms have an exit on each cardinal direction, hiding more rooms to explore. Once a door is opened there is no going back, so choose wisely.
 
+
+
 ## Features
 
+<br>
 
+<div class="column">
+<img src="/HexRoomGen.gif" alt="Room" style="width:100%">
+</div>
 
-![Rooms](/HexRoomGen.gif)
+- Each room consists of a 2D array grid of hexagons, each side leads to another room based on its selected room type. Each room is populated using a table, objects include (but not limited to) - Walls, Doors, Enemies, Items, Traps, Scenery...
 
-- A room based dungeon generator, using hex tiles in a square grid formation.
+- Progrssing further increase the difficulty of each room of the dungeon. Ending with a final room containing the boss.
 
+<div class="column">
+<img src="/HexControls.gif" alt="Room" style="width:100%">
+</div>
+
+- The player has control over the main camera, with panning, moving and zooming based on their needs. A Double click will also move the camera to the selected location.
+
+- With the use of UI, the player will also be able to play actions for each of their pawns
+
+<div class="column">
+<img src="/HexLight.gif" alt="Room" style="width:100%">
+</div>
+
+- Lighting will play a large role in this dungeon crawler. Light is only provided in certain areas, and enemies in the dark will be harder to hit, this forces the player to utilise the pawns directions to light the way. There is also a handly light attached to the mouse position, which will dim with distance to the pawns. 
+
+- As seen above this light creates a more dramatic and dark atmosphere. Different room types can also produce light based on the interior scenery.
+
+<div class="column">
+<img src="/HexHealth.gif" alt="Room" style="width:100%">
+</div>
+
+- Each pawn has a health bar displayed above. The size is increased when the mouse pointer is closer to the pawn.
+
+- It also shows a marker for if the pawn is defended by a shield or magical barrier, blocking the first matching hit.
+
+<div class="column">
+<img src="/HexEnviro.gif" alt="Room" style="width:100%">
+</div>
+
+- Each room is themed based on the chosen adventure path. This includes the enemies that the player will come across. Pawn placement and facing direction will be important to keep them alive and in the fight.
+
+<!--
+![Rooms](/HexRoomGen.gif) 
 ![Controls](/HexControls.gif)
-
-- Player movement and rotation
-
 ![Light](/HexLight.gif)
-
-- Light
-
 ![Health](/HexHealth.gif)
-
-- Health and protection information overhead
- 
 ![Movement](/HexEnviro.gif)
-
-- Pawn Movement
+-->
 
 ### TODO
-
-- Room Styles - Each room will have a style used to build the look and layout of the room.
 
 - Card Combat - Based on equipment each unit will have different abilities they can act upon each turn. A card system will add a more dynamic feel to the combat.
 
