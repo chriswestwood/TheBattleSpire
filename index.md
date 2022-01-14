@@ -13,7 +13,7 @@ Each level is structured of square rooms, that consist of hexagon tiles. Rooms h
 <br>
 
 <a>
-<img alt="Room Gen" src="/HexRoomGen.gif" width="80%"/>
+<img alt="Room Gen" src="https://github.com/chriswestwood/TheBattleSpire/blob/2f194cea52e0aff5c696368cfb1796b089da11ca/HexRoomGen.gif" width="80%"/>
 </a>
 
 ### Room Generation
@@ -22,7 +22,7 @@ Each level is structured of square rooms, that consist of hexagon tiles. Rooms h
 - Progrssing further increase the difficulty of each room of the dungeon. Ending with a final room containing the boss.
 
 <a>
-<img alt="Control" src="/HexControls.gif" width="80%"/>
+<img alt="Control" src="https://github.com/chriswestwood/TheBattleSpire/blob/2f194cea52e0aff5c696368cfb1796b089da11ca/HexControls.gif" width="80%"/>
 </a>
 
 ### Control
@@ -31,7 +31,7 @@ Each level is structured of square rooms, that consist of hexagon tiles. Rooms h
 - With the use of UI, the player will also be able to play actions for each of their pawns
 
 <a>
-<img alt="Light" src="/HexLight.gif" width="80%"/>
+<img alt="Light" src="https://github.com/chriswestwood/TheBattleSpire/blob/2f194cea52e0aff5c696368cfb1796b089da11ca/HexLight.gif" width="80%"/>
 </a>
 
 ### Light
@@ -40,7 +40,7 @@ Each level is structured of square rooms, that consist of hexagon tiles. Rooms h
 - As seen above this light creates a more dramatic and dark atmosphere. Different room types can also produce light based on the interior scenery.
 
 <a>
-<img alt="Health" src="/HexHealth.gif" width="80%"/>
+<img alt="Health" src="https://github.com/chriswestwood/TheBattleSpire/blob/2f194cea52e0aff5c696368cfb1796b089da11ca/HexHealth.gif" width="80%"/>
 </a>
 
 ### Health Bars
@@ -49,7 +49,7 @@ Each level is structured of square rooms, that consist of hexagon tiles. Rooms h
 - It also shows a marker for if the pawn is defended by a shield or magical barrier, blocking the first matching hit.
 
 <a>
-<img alt="Environment" src="/HexEnviro.gif" width="80%"/>
+<img alt="Environment" src="https://github.com/chriswestwood/TheBattleSpire/blob/2f194cea52e0aff5c696368cfb1796b089da11ca/HexEnviro.gif" width="80%"/>
 </a>
 
 ### Environment
