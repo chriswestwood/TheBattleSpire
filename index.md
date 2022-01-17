@@ -18,28 +18,28 @@ Each level is structured of square rooms, that consist of hexagon tiles. Rooms h
 
 - Progrssing further increase the difficulty of each room of the dungeon. Ending with a final room containing the boss.
 
-![Room Generation](/HexControls.gif)
+![Rotation](/HexControls.gif)
 
 ### Control
 - The player has control over the main camera, with panning, moving and zooming based on their needs. A Double click will also move the camera to the selected location.
 
 - With the use of UI, the player will also be able to play actions for each of their pawns
 
-![Room Generation](/HexLight.gif)
+![Light](/HexLight.gif)
 
 ### Light
 - Lighting will play a large role in this dungeon crawler. Light is only provided in certain areas, and enemies in the dark will be harder to hit, this forces the player to utilise the pawns directions to light the way. There is also a handly light attached to the mouse position, which will dim with distance to the pawns. 
 
 - As seen above this light creates a more dramatic and dark atmosphere. Different room types can also produce light based on the interior scenery.
 
-![Room Generation](/HexHealth.gif)
+![Health](/HexHealth.gif)
 
 ### Health Bars
 - Each pawn has a health bar displayed above. The size is increased when the mouse pointer is closer to the pawn.
 
 - It also shows a marker for if the pawn is defended by a shield or magical barrier, blocking the first matching hit.
 
-![Room Generation](/HexEnviro.gif)
+![Environment](/HexEnviro.gif)
 
 ### Environment
 - Each room is themed based on the chosen adventure path. This includes the enemies that the player will come across. Pawn placement and facing direction will be important to keep them alive and in the fight.
