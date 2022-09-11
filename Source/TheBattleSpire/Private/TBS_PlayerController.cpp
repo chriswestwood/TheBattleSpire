@@ -32,17 +32,17 @@ void ATBS_PlayerController::PlayerTick(float DeltaTime)
 	FHitResult Hit;
 	GetHitResultUnderCursor(ECC_GameTraceChannel1,false, Hit);
 	if (Hit.bBlockingHit) {
-		if (Hit.Actor != NULL) 
+		if (AActor* HitActor = Hit.GetActor())
 		{
 			mouseCoord = Hit.Location;
-			ATBS_Object* traceObject = Cast<ATBS_Object>(Hit.Actor);
+			ATBS_Object* traceObject = Cast<ATBS_Object>(HitActor);
 			if (IsValid(traceObject))
 			{
 				traceHex = traceObject->GetHex();
 			}
 			else
 			{
-				traceHex = Cast<ATBS_Hex>(Hit.Actor);
+				traceHex = Cast<ATBS_Hex>(HitActor);
 			}
 		}
 		// update rotation if the selected hex are valid
@@ -204,7 +204,7 @@ void ATBS_PlayerController::MoveCamera()
 	FHitResult Hit;
 	GetHitResultUnderCursor(ECC_GameTraceChannel1, false, Hit);
 	if (Hit.bBlockingHit) {
-		if (Hit.Actor != NULL)
+		if (Hit.GetActor() != NULL)
 		{
 			Cast<ATBS_CameraPawn>(GetPawn())->MoveTo(Hit.Location);
 		}
